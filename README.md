@@ -155,7 +155,7 @@ One-time setup (about 5 minutes):
 
 If you edit `Code.gs` later, use **Deploy → Manage deployments → Edit → New version** so the same URL keeps working.
 
-Until `rsvpSheetUrl` is set, the form opens WhatsApp with the guest's answers typed in, sent to the host whose link they opened.
+If `rsvpSheetUrl` is ever emptied, the form opens WhatsApp with the guest's answers typed in, sent to the host whose link they opened.
 
 ### Two invitation links
 
