@@ -431,16 +431,76 @@
           <p><span data-bind="weekday"></span>, <span data-bind="date"></span> · <span data-bind="time"></span></p>
           <p data-bind="venue"></p>
         </div>
-        <div class="actions actions--stack" data-reveal>
-          <a class="btn btn--maroon btn--wide" id="rsvp-button" target="_blank" rel="noopener">RSVP</a>
-          <p class="rsvp__note" id="rsvp-note"></p>
-          <div class="actions">
-            <div class="cal">
-              <button type="button" class="btn btn--line" data-choices="calendar" aria-haspopup="menu" aria-expanded="false">Add to Calendar</button>
-            </div>
-            <button type="button" class="btn btn--line" data-choices="map:venue" aria-haspopup="menu" aria-expanded="false">Directions</button>
+        <form class="rsvp-form" id="rsvp-form" novalidate data-reveal aria-describedby="rsvp-form-intro">
+          <p class="rsvp-form__intro" id="rsvp-form-intro">Kindly let us know you are coming.</p>
+
+          <div class="field">
+            <label class="field__label" for="rsvp-name">Your name</label>
+            <input class="field__input" id="rsvp-name" name="name" type="text" autocomplete="name" maxlength="120" required
+                   placeholder="Name as it should appear on our list" />
+            <p class="field__error" id="rsvp-name-error" hidden>Please enter your name.</p>
           </div>
+
+          <div class="field">
+            <label class="field__label" for="rsvp-phone">Phone number <span class="field__optional">(optional)</span></label>
+            <input class="field__input" id="rsvp-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="30"
+                   placeholder="+60 12-345 6789" />
+          </div>
+
+          <div class="field-row">
+            <div class="field field--count">
+              <span class="field__label" id="rsvp-adults-label">Adults</span>
+              <div class="stepper" role="group" aria-labelledby="rsvp-adults-label">
+                <button type="button" class="stepper__btn" data-delta="-1" data-for="rsvp-adults" aria-label="One fewer adult">−</button>
+                <input class="stepper__value" id="rsvp-adults" name="adults" type="number" inputmode="numeric" min="1" max="20" value="1" aria-labelledby="rsvp-adults-label" />
+                <button type="button" class="stepper__btn" data-delta="1" data-for="rsvp-adults" aria-label="One more adult">+</button>
+              </div>
+            </div>
+            <div class="field field--count">
+              <span class="field__label" id="rsvp-children-label">Children</span>
+              <div class="stepper" role="group" aria-labelledby="rsvp-children-label">
+                <button type="button" class="stepper__btn" data-delta="-1" data-for="rsvp-children" aria-label="One fewer child">−</button>
+                <input class="stepper__value" id="rsvp-children" name="children" type="number" inputmode="numeric" min="0" max="20" value="0" aria-labelledby="rsvp-children-label" />
+                <button type="button" class="stepper__btn" data-delta="1" data-for="rsvp-children" aria-label="One more child">+</button>
+              </div>
+            </div>
+          </div>
+
+          <fieldset class="field field--choice">
+            <legend class="field__label">Meal preference</legend>
+            <div class="choice">
+              <input type="radio" id="rsvp-meal-veg" name="meal" value="Vegetarian" required />
+              <label for="rsvp-meal-veg">Vegetarian</label>
+              <input type="radio" id="rsvp-meal-nonveg" name="meal" value="Non-vegetarian" />
+              <label for="rsvp-meal-nonveg">Non-vegetarian</label>
+            </div>
+            <p class="field__error" id="rsvp-meal-error" hidden>Please choose a meal preference.</p>
+          </fieldset>
+
+          <!-- Spam trap: people never see or fill this -->
+          <div class="rsvp-form__trap" aria-hidden="true">
+            <label for="rsvp-website">Website</label>
+            <input id="rsvp-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <button type="submit" class="btn btn--maroon btn--wide rsvp-form__submit" id="rsvp-submit">Send RSVP</button>
+          <p class="rsvp-form__status" id="rsvp-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="rsvp-thanks" id="rsvp-thanks" hidden tabindex="-1">
+          <svg class="lotus" aria-hidden="true"><use href="#orn-lotus" /></svg>
+          <h3 class="rsvp-thanks__title">Thank you</h3>
+          <p class="rsvp-thanks__text" id="rsvp-thanks-text"></p>
+          <button type="button" class="rsvp-thanks__again" id="rsvp-again">Send another response</button>
         </div>
+
+        <div class="actions" data-reveal>
+          <div class="cal">
+            <button type="button" class="btn btn--line" data-choices="calendar" aria-haspopup="menu" aria-expanded="false">Add to Calendar</button>
+          </div>
+          <button type="button" class="btn btn--line" data-choices="map:venue" aria-haspopup="menu" aria-expanded="false">Directions</button>
+        </div>
+        <p class="rsvp__whatsapp" data-reveal>Questions? <a id="rsvp-whatsapp" target="_blank" rel="noopener">Message <span id="rsvp-host"></span> on WhatsApp</a></p>
       </div>
     </section>
 

@@ -15,6 +15,8 @@ It's a plain static website: HTML, CSS and vanilla JavaScript, with GSAP + Scrol
 ├── css/style.css         design system & layout
 ├── js/config.js          ← EVERYTHING you normally edit lives here
 ├── js/main.js            scroll engine, video manager, animations, music, RSVP/calendar
+├── google-apps-script/
+│   └── Code.gs           saves RSVP form replies into your Google Sheet
 └── assets/
     ├── video/            scene videos
     ├── images/           card, groom, bride, ornaments
@@ -126,22 +128,45 @@ All content comes from **`js/config.js`**, and every page section reads from it.
 | Date | `date: "24 October 2026"` (format **DD Month YYYY**). The weekday, the big "24", "OCTOBER", "2026", "24 • 10 • 2026" and the calendar invite are all derived from it. |
 | Time | `time: "7:00 PM"`. `utcOffset` is the venue's time zone (`"+08:00"` for Malaysia), and `durationHours` sets the calendar event length. |
 | Venue | `venue` (one line, used for maps, calendar and RSVP) and `venueLines` (how it breaks onto lines on the invitation) |
-| WhatsApp RSVP | `rsvpContacts` (name + number for each host, international format, digits only) and `defaultRsvp`. The message itself is `rsvpMessage`. See **Two RSVP versions** below. |
+| RSVP form | `rsvpSheetUrl`: the Google Apps Script Web app URL. See **RSVP form → Google Sheet** below. |
+| Hosts | `rsvpContacts` (name + WhatsApp number for each host, international format, digits only) and `defaultRsvp`. See **Two invitation links** below. |
 | Maps | `maps.venue.google`, `maps.venue.waze`, `maps.parking.google`, `maps.parking.waze`. Each Directions button opens a small menu with Google Maps and Waze. Any empty link falls back to a Google Maps search of the venue address. |
 | Video / poster paths | the `videos` object |
 | Video behaviour | `videoMode`: `"auto"` (scrub with scroll, and switch to normal playback on devices that seek slowly), `"scrub"` or `"play"` |
 | Music | `music`, `musicVolume` |
 
-### Two RSVP versions
+### RSVP form → Google Sheet
 
-There is one website, and the link decides who receives the RSVP:
+Guests fill in their name, phone (optional), number of adults and children, and vegetarian or non-vegetarian. Each reply becomes a row in your Google Sheet:
 
-| Share with | Link | RSVP goes to |
+| Submitted at | Name | Phone | Adults | Children | Total pax | Meal | Invited by |
+|---|---|---|---|---|---|---|---|
+
+One-time setup (about 5 minutes):
+
+1. Create a new Google Sheet (e.g. "Engagement RSVP").
+2. In the sheet, open **Extensions → Apps Script**. Delete the sample code and paste in everything from `google-apps-script/Code.gs`. Click **Save**.
+3. Click **Deploy → New deployment**. Under "Select type" (gear icon) choose **Web app**. Set:
+   - **Execute as:** Me
+   - **Who has access:** Anyone
+4. Click **Deploy** and allow access when Google asks. Google warns that the app isn't verified; choose **Advanced → Go to (project name)**. It's your own script.
+5. Copy the **Web app URL** (it ends in `/exec`) into `rsvpSheetUrl` in `js/config.js`, then commit and redeploy the site.
+6. Test: send one RSVP from the site. A tab named **RSVP** appears in the sheet with the headers and your row. Delete the test row afterwards.
+
+If you edit `Code.gs` later, use **Deploy → Manage deployments → Edit → New version** so the same URL keeps working.
+
+Until `rsvpSheetUrl` is set, the form opens WhatsApp with the guest's answers typed in, sent to the host whose link they opened.
+
+### Two invitation links
+
+There is one website, and the link decides which host it belongs to. The form records that host in the sheet's **Invited by** column, and the "Questions? Message … on WhatsApp" link goes to them:
+
+| Share with | Link | Host |
 |---|---|---|
 | Yogathipan's guests | `https://YOUR-SITE/?rsvp=yogathipan` | Yogathipan · +60 14-615 5770 |
 | Selvarani's guests | `https://YOUR-SITE/?rsvp=selvarani` | Selvarani · +60 17-383 3995 |
 
-A link without `?rsvp=` sends replies to `defaultRsvp` (Yogathipan). `#selvarani` at the end of the link works too. Below the button, guests see whose number their reply goes to.
+A link without `?rsvp=` belongs to `defaultRsvp` (Yogathipan). `#selvarani` at the end of the link works too.
 
 ---
 

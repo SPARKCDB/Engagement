@@ -126,10 +126,10 @@
       const wanted = (params.get("rsvp") || window.location.hash.slice(1) || "").toLowerCase();
       const key = contacts[wanted] ? wanted : CFG.defaultRsvp;
       const c = contacts[key] || Object.values(contacts)[0] || {};
-      return { name: c.name || "", number: String(c.number || "").replace(/\D/g, "") };
+      return { key: key || "", name: c.name || "", number: String(c.number || "").replace(/\D/g, "") };
     },
-    whatsapp(number) {
-      const text = encodeURIComponent(CFG.rsvpMessage || "");
+    whatsapp(number, message) {
+      const text = encodeURIComponent(message || CFG.rsvpMessage || "");
       return number ? `https://wa.me/${number}?text=${text}` : `https://wa.me/?text=${text}`;
     },
     // "60146155770" → "+60 14-615 5770"
@@ -186,14 +186,14 @@
   };
 
   function initActions() {
-    // RSVP goes to the host whose version of the link the guest opened
+    // Questions go to the host whose version of the link the guest opened
     const host = Links.rsvpContact();
-    const rsvp = $("#rsvp-button");
-    rsvp.href = Links.whatsapp(host.number);
-    rsvp.textContent = "RSVP on WhatsApp";
-    rsvp.setAttribute("aria-label", `RSVP on WhatsApp${host.name ? ` to ${host.name}` : ""} (opens in a new tab)`);
+    const wa = $("#rsvp-whatsapp");
     if (host.number) {
-      $("#rsvp-note").textContent = `Your reply goes to ${host.name || "us"} · ${Links.prettyNumber(host.number)}`;
+      wa.href = Links.whatsapp(host.number);
+      $("#rsvp-host").textContent = host.name || Links.prettyNumber(host.number);
+    } else {
+      wa.parentElement.remove();
     }
 
     // Choice menu: calendar, directions to the venue, directions to parking
@@ -921,6 +921,125 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* RSVP form → Google Sheet (via Apps Script web app)                  */
+  /* ------------------------------------------------------------------ */
+  function initRsvpForm() {
+    const form = $("#rsvp-form");
+    if (!form) return;
+    const host = Links.rsvpContact();
+    const status = $("#rsvp-status");
+    const submit = $("#rsvp-submit");
+    const thanks = $("#rsvp-thanks");
+    const nameInput = $("#rsvp-name");
+    const DONE_KEY = "ys-engagement-rsvp";
+
+    // − / + steppers
+    const clampCount = (input) => {
+      const min = +input.min, max = +input.max;
+      const v = parseInt(input.value, 10);
+      input.value = String(isNaN(v) ? min : Math.min(max, Math.max(min, v)));
+    };
+    $$(".stepper__btn", form).forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const input = doc.getElementById(btn.dataset.for);
+        input.value = String((parseInt(input.value, 10) || 0) + +btn.dataset.delta);
+        clampCount(input);
+      });
+    });
+    $$(".stepper__value", form).forEach((input) => input.addEventListener("change", () => clampCount(input)));
+
+    const showError = (id, show) => {
+      const el = doc.getElementById(id);
+      el.hidden = !show;
+      const field = el.closest(".field");
+      field.classList.toggle("is-invalid", show);
+    };
+    nameInput.addEventListener("input", () => { if (nameInput.value.trim()) showError("rsvp-name-error", false); });
+    $$('input[name="meal"]', form).forEach((r) => r.addEventListener("change", () => showError("rsvp-meal-error", false)));
+
+    const showThanks = (data) => {
+      const pax = data.adults + data.children;
+      $("#rsvp-thanks-text").textContent =
+        `We have noted ${pax} ${pax === 1 ? "guest" : "guests"} (${data.adults} ${data.adults === 1 ? "adult" : "adults"}` +
+        `${data.children ? `, ${data.children} ${data.children === 1 ? "child" : "children"}` : ""}), ${data.meal.toLowerCase()}. ` +
+        `We look forward to celebrating with you, ${data.name.split(" ")[0]}.`;
+      form.hidden = true;
+      thanks.hidden = false;
+    };
+
+    // A guest who already replied on this device sees their confirmation.
+    try {
+      const saved = JSON.parse(storage.get(DONE_KEY) || "null");
+      if (saved && saved.name) showThanks(saved);
+    } catch (e) { /* ignore */ }
+
+    $("#rsvp-again").addEventListener("click", () => {
+      thanks.hidden = true;
+      form.hidden = false;
+      form.reset();
+      status.textContent = "";
+      nameInput.focus();
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (submit.disabled) return;
+      $$(".stepper__value", form).forEach(clampCount);
+      const fd = new FormData(form);
+      const data = {
+        name: String(fd.get("name") || "").trim(),
+        phone: String(fd.get("phone") || "").trim(),
+        adults: parseInt(fd.get("adults"), 10) || 0,
+        children: parseInt(fd.get("children"), 10) || 0,
+        meal: String(fd.get("meal") || ""),
+        invitedBy: host.name || host.key,
+      };
+      showError("rsvp-name-error", !data.name);
+      showError("rsvp-meal-error", !data.meal);
+      if (!data.name) { nameInput.focus(); return; }
+      if (!data.meal) { $('input[name="meal"]', form).focus(); return; }
+      if (fd.get("website")) return; // spam trap
+
+      // No sheet configured yet: hand the answers to WhatsApp instead.
+      if (!CFG.rsvpSheetUrl) {
+        const msg = `${CFG.rsvpMessage}\n\nName: ${data.name}${data.phone ? `\nPhone: ${data.phone}` : ""}` +
+          `\nAdults: ${data.adults}\nChildren: ${data.children}\nMeal: ${data.meal}`;
+        const a = doc.createElement("a");
+        a.href = Links.whatsapp(host.number, msg);
+        a.target = "_blank";
+        a.rel = "noopener";
+        body.appendChild(a);
+        a.click();
+        a.remove();
+        status.textContent = "Opening WhatsApp with your reply…";
+        return;
+      }
+
+      submit.disabled = true;
+      submit.textContent = "Sending…";
+      status.textContent = "";
+      try {
+        // Apps Script web apps do not return CORS headers for every browser,
+        // so the request is sent as a simple no-cors form post.
+        await fetch(CFG.rsvpSheetUrl, {
+          method: "POST",
+          mode: "no-cors",
+          body: new URLSearchParams({ ...data, website: "" }),
+        });
+        storage.set(DONE_KEY, JSON.stringify(data));
+        showThanks(data);
+        thanks.focus();
+      } catch (err) {
+        console.error("[invitation] RSVP failed", err);
+        status.textContent = "We couldn't send your RSVP. Please check your connection and try again.";
+      } finally {
+        submit.disabled = false;
+        submit.textContent = "Send RSVP";
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* 7 · Reveals for the paper sections                                  */
   /* ------------------------------------------------------------------ */
   function initReveals() {
@@ -1093,6 +1212,7 @@
       scenes.slice(0, 2).forEach((s) => s.media.load());
     }
 
+    safely("rsvp form", initRsvpForm);
     safely("reveals", initReveals);
     safely("navigation", initNavigation);
     safely("music", () => Music.init());
