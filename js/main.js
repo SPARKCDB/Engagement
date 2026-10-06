@@ -884,7 +884,6 @@
 
   const progressEl = $("#progress");
   const progressBtns = $$("[data-goto]", progressEl);
-  const progressCurrent = $(".progress__current", progressEl);
   let currentChapter = 0;
 
   function updateChrome(y) {
@@ -901,10 +900,7 @@
       progressBtns.forEach((b) => {
         if (+b.dataset.goto === currentChapter) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
       });
-      if (progressCurrent) progressCurrent.textContent = pad(currentChapter);
     }
-    const maxY = Math.max(1, doc.documentElement.scrollHeight - vh);
-    progressEl.style.setProperty("--chapter-progress", clamp(y / maxY).toFixed(3));
   }
 
   function scrollToTarget(target) {

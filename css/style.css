@@ -161,7 +161,6 @@ body.is-quiet .progress, body.is-quiet .music-toggle { opacity: .18; }
 body.ui-light .progress { color: rgba(62,16,22,.5); }
 body.ui-light .progress button[aria-current="step"] { color: var(--gold-ink); }
 
-.progress__mobile { display: none; }
 
 /* --- Music --- */
 .music-toggle {
@@ -675,17 +674,6 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
   .progress { top: calc(var(--safe-t) + .9rem); right: 1rem; transform: none; }
   .progress ol { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .progress ol:focus-within { position: static; width: auto; height: auto; clip-path: none; }
-  .progress__mobile {
-    display: flex; align-items: center; gap: .55rem;
-    font-family: var(--f-title); font-size: .58rem; letter-spacing: .2em;
-  }
-  .progress__mobile i { position: relative; display: block; width: 34px; height: 1px; background: currentColor; opacity: .35; }
-  .progress__mobile i::after {
-    content: ""; position: absolute; inset: 0; background: var(--gold); transform-origin: left;
-    transform: scaleX(var(--chapter-progress, 0)); transition: transform .8s var(--ease);
-  }
-  .progress__current { color: var(--gold); }
-  body.ui-light .progress__current { color: var(--gold-ink); }
 }
 
 @media (min-width: 768px) {
