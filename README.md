@@ -65,7 +65,7 @@ ffmpeg -i input.mov -an -vf "scale=720:-2" -c:v libx264 -preset slow -crf 26 \
 
 Keep each clip short (4–8 s) and under about 6 MB where possible.
 
-> The videos currently in `assets/video/` have already been re-encoded this way (keyframe every 6 frames, audio removed). `scene10_hero.mp4` has not been uploaded yet; until it is, the hero scene shows `posters/scene10_hero.jpg` (the last frame of the staircase video).
+> The videos currently in `assets/video/` have already been re-encoded this way (keyframe every 6 frames, audio removed). Posters are the first frame of each video (the hero poster is its last frame, the couple seated).
 
 **Optional WebM.** Put a `.webm` copy next to each `.mp4` (same name) and set `videoFormats: ["webm", "mp4"]` in `js/config.js`:
 
@@ -92,9 +92,9 @@ Posters show while a video loads, if a video fails, and for visitors who prefer 
 | `invitation-card.png` | Fallback poster for the card-opening scene |
 | `groom.png` | Fallback still for the groom scene |
 | `Bride.png` | Fallback still for the bride scene (file names are case-sensitive on most hosts) |
-| `ornamental-elements.png` (in `assets/images/`) | Subtle gold overlay on "The Celebration" venue section (best as gold on a transparent or black background) |
+| `ornamental-elements.png` | Source sheet. The thoranam (`assets/images/ornament-thoranam.png`, hung over the details frame) and the brass lamps (`assets/images/ornament-lamps.png`, above the RSVP) are cut from it with a transparent background. |
 
-All four are optional. If one is missing, it's simply skipped.
+All are optional. If one is missing, it's simply skipped.
 
 ### Music → `assets/audio/background-music.mp3`
 
@@ -126,8 +126,8 @@ All content comes from **`js/config.js`**, and every page section reads from it.
 | Date | `date: "24 October 2026"` (format **DD Month YYYY**). The weekday, the big "24", "OCTOBER", "2026", "24 • 10 • 2026" and the calendar invite are all derived from it. |
 | Time | `time: "7:00 PM"`. `utcOffset` is the venue's time zone (`"+08:00"` for Malaysia), and `durationHours` sets the calendar event length. |
 | Venue | `venue` (one line, used for maps, calendar and RSVP) and `venueLines` (how it breaks onto lines on the invitation) |
-| WhatsApp RSVP | `whatsappNumber`: international format, digits only, e.g. `"60123456789"`. If left empty, the RSVP button opens WhatsApp so the guest can choose the contact. The message itself is `rsvpMessage`. |
-| Google Maps | `mapUrl`: paste a Google Maps share link (e.g. `https://maps.app.goo.gl/...`). If left empty, the button searches for the venue address. |
+| WhatsApp RSVP | `whatsappContacts`: one entry per number (international format, digits only). Each gets its own RSVP button. Add a `label` (e.g. `"Yogathipan"`) to show a name instead of the number. The message itself is `rsvpMessage`. |
+| Maps | `maps.venue.google`, `maps.venue.waze`, `maps.parking.google`, `maps.parking.waze`: share links for the venue and the parking. Any empty link falls back to a Google Maps search of the venue address. |
 | Video / poster paths | the `videos` object |
 | Video behaviour | `videoMode`: `"auto"` (scrub with scroll, and switch to normal playback on devices that seek slowly), `"scrub"` or `"play"` |
 | Music | `music`, `musicVolume` |
@@ -146,7 +146,7 @@ Upload the whole folder as-is. No build is needed.
 
 Before sharing the link:
 
-1. Set `whatsappNumber` and (optionally) `mapUrl`.
+1. Check `whatsappContacts` and the `maps` links.
 2. Add the videos and posters, and check on a real phone.
 3. Large videos load best from a host with a CDN (all of the above).
 

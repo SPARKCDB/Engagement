@@ -24,13 +24,26 @@ window.invitationConfig = {
   venueLines: ["No. 5, Lorong 1A/71E", "Off Jalan Carey", "Petaling Jaya, Selangor"],
 
   /* ---- Links --------------------------------------------------------- */
-  // WhatsApp number in international format, digits only (e.g. "60123456789").
-  // Leave empty and the RSVP button lets the guest choose the contact.
-  whatsappNumber: "",
+  // WhatsApp numbers for RSVP, international format, digits only.
+  // Each gets its own button. Add a label (e.g. "Yogathipan") to show a name
+  // instead of the number.
+  whatsappContacts: [
+    { number: "60146155770", label: "" },
+    { number: "60173833995", label: "" },
+  ],
   rsvpMessage:
     "Hi Yogathipan & Selvarani, I would like to confirm my attendance for your engagement on 24 October 2026.",
-  // Paste a Google Maps share link here. Leave empty to search the venue address.
-  mapUrl: "",
+  // Directions. Any link left empty falls back to a Google Maps search of the venue.
+  maps: {
+    venue: {
+      google: "https://maps.app.goo.gl/RoiJ7EkbLGjSAZCAA",
+      waze: "https://waze.com/ul/hw283938s0",
+    },
+    parking: {
+      google: "https://maps.app.goo.gl/wsvasnfvvSDyhgAi8",
+      waze: "https://waze.com/ul/hw283938s0",
+    },
+  },
 
   /* ---- Media --------------------------------------------------------- */
   // "auto"   – scrub videos with scroll, falls back to normal playback on slow devices
@@ -108,8 +121,9 @@ window.invitationConfig = {
   },
 
   images: {
-    invitationCard: "assets/images/posters/invitation-card.png",
-    ornaments: "assets/images/ornamental-elements.png",
+    // Cut from assets/images/posters/ornamental-elements.png
+    thoranam: "assets/images/ornament-thoranam.png",
+    lamps: "assets/images/ornament-lamps.png",
   },
 
   /* ---- Sound --------------------------------------------------------- */

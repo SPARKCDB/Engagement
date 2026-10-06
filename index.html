@@ -340,6 +340,7 @@
     <!-- ===================== ENGAGEMENT DETAILS ===================== -->
     <section class="details paper" id="details" data-chapter="4" data-theme="light" aria-labelledby="details-title">
       <div class="frame">
+        <img class="thoranam" alt="" aria-hidden="true" data-image="thoranam" />
         <svg class="corner corner--tl" aria-hidden="true"><use href="#orn-corner" /></svg>
         <svg class="corner corner--tr" aria-hidden="true"><use href="#orn-corner" /></svg>
         <svg class="corner corner--bl" aria-hidden="true"><use href="#orn-corner" /></svg>
@@ -375,13 +376,22 @@
         <svg><use href="#orn-arch" /></svg>
         <svg><use href="#orn-arch" /></svg>
       </div>
-      <img class="venue__ornaments" alt="" aria-hidden="true" data-image="ornaments" />
       <div class="venue__content">
         <svg class="venue__lamp" aria-hidden="true" data-reveal><use href="#orn-lamp" /></svg>
         <h2 class="venue__title" id="venue-title" data-reveal>The Celebration</h2>
         <svg class="divider" aria-hidden="true" data-reveal><use href="#orn-divider" /></svg>
         <address class="venue__address" data-reveal data-bind-lines="venueLines"></address>
-        <a class="btn btn--gold" data-action="maps" target="_blank" rel="noopener" data-reveal>Open in Google Maps</a>
+        <div class="actions" data-reveal>
+          <a class="btn btn--gold" data-map="venue.google" target="_blank" rel="noopener">Open in Google Maps</a>
+          <a class="btn btn--gold" data-map="venue.waze" target="_blank" rel="noopener">Open in Waze</a>
+        </div>
+        <div class="parking" data-reveal>
+          <h3 class="parking__title">Parking</h3>
+          <div class="actions">
+            <a class="btn btn--gold" data-map="parking.google" target="_blank" rel="noopener">Parking · Google Maps</a>
+            <a class="btn btn--gold" data-map="parking.waze" target="_blank" rel="noopener">Parking · Waze</a>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -416,7 +426,7 @@
     <!-- ===================== RSVP ===================== -->
     <section class="rsvp paper" id="rsvp" data-chapter="5" data-theme="light" aria-labelledby="rsvp-title">
       <div class="rsvp__inner">
-        <svg class="rsvp__kolam" aria-hidden="true" data-reveal><use href="#orn-kolam" /></svg>
+        <img class="rsvp__lamps" alt="" aria-hidden="true" data-image="lamps" data-reveal />
         <h2 class="rsvp__title" id="rsvp-title" data-reveal>We would be honoured by your presence</h2>
         <p class="rsvp__sub" data-reveal>Join us as we celebrate this beautiful beginning.</p>
         <svg class="divider" aria-hidden="true" data-reveal><use href="#orn-divider" /></svg>
@@ -425,12 +435,14 @@
           <p data-bind="venue"></p>
         </div>
         <div class="actions actions--stack" data-reveal>
-          <a class="btn btn--maroon btn--wide" data-action="rsvp" target="_blank" rel="noopener">RSVP</a>
+          <p class="rsvp__label">RSVP on WhatsApp</p>
+          <div class="actions actions--stack rsvp__contacts" id="rsvp-contacts"></div>
           <div class="actions">
             <div class="cal">
               <button type="button" class="btn btn--line" data-action="calendar" aria-haspopup="true" aria-expanded="false">Add to Calendar</button>
             </div>
-            <a class="btn btn--line" data-action="maps" target="_blank" rel="noopener">Directions</a>
+            <a class="btn btn--line" data-map="venue.google" target="_blank" rel="noopener">Google Maps</a>
+            <a class="btn btn--line" data-map="venue.waze" target="_blank" rel="noopener">Waze</a>
           </div>
         </div>
       </div>

@@ -477,6 +477,14 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
 }
 .frame::before { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(198,161,91,.55); pointer-events: none; }
 .frame > .lotus { margin-bottom: 1.8rem; }
+/* Marigold & mango-leaf thoranam hung across the top of the frame */
+.thoranam {
+  position: absolute; top: -.6rem; left: 50%; transform: translateX(-50%);
+  width: min(320px, 74%); height: auto; mix-blend-mode: multiply; pointer-events: none;
+  opacity: 0; transition: opacity 1.4s var(--ease);
+}
+.thoranam.is-loaded { opacity: 1; }
+.frame:has(.thoranam.is-loaded) { padding-top: clamp(8.5rem, 34vw, 10rem); }
 .details__names {
   font-family: var(--f-display); font-weight: 400; text-transform: uppercase;
   font-size: clamp(1.75rem, 8vw, 3.3rem); letter-spacing: .04em; line-height: 1.1; color: var(--maroon);
@@ -566,8 +574,6 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
 }
 .venue__arches svg { height: 78%; width: auto; flex: none; }
 .venue__arches svg:nth-child(2) { height: 100%; }
-.venue__ornaments { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; mix-blend-mode: screen; pointer-events: none; }
-.venue__ornaments.is-loaded { opacity: .14; }
 .venue__content { position: relative; max-width: 34rem; }
 .venue__lamp { width: 34px; height: 62px; color: var(--gold); margin: 0 auto 2rem; }
 .venue__title {
@@ -579,14 +585,26 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
   margin-top: 1.8rem; font-family: var(--f-display); font-weight: 400; text-transform: uppercase;
   font-size: clamp(1.25rem, 5.4vw, 1.75rem); letter-spacing: .1em; line-height: 1.55;
 }
-.venue .btn { margin-top: 2.8rem; }
+.venue .actions { margin-top: 2.6rem; }
+.parking { margin-top: 3rem; padding-top: 2.2rem; border-top: 1px solid rgba(198,161,91,.3); }
+.parking__title {
+  font-family: var(--f-title); font-weight: 400; font-size: .74rem; letter-spacing: .5em; padding-left: .5em;
+  text-transform: uppercase; color: var(--gold-light);
+}
+.parking .actions { margin-top: 1.4rem; }
 
 /* ==========================================================================
    RSVP
    ========================================================================== */
 .rsvp { padding: clamp(6rem, 16vh, 10rem) 6vw; text-align: center; }
 .rsvp__inner { max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
-.rsvp__kolam { width: 92px; height: 92px; color: var(--gold); margin-bottom: 2.2rem; }
+.rsvp__lamps { width: 132px; height: auto; margin-bottom: 2.2rem; mix-blend-mode: multiply; }
+.rsvp__label {
+  font-family: var(--f-title); font-size: .66rem; letter-spacing: .4em; padding-left: .4em;
+  text-transform: uppercase; color: var(--gold-ink);
+}
+.rsvp__contacts { margin-top: 0; gap: .8rem; }
+.rsvp__contacts .btn { letter-spacing: .22em; padding-left: 1.5rem; font-variant-numeric: tabular-nums; }
 .rsvp__title {
   font-family: var(--f-title); font-weight: 400; text-transform: uppercase;
   font-size: clamp(1.2rem, 5.4vw, 2.1rem); letter-spacing: .16em; line-height: 1.55; color: var(--maroon);
@@ -674,7 +692,7 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
   .persona--groom { left: 9vw; }
   .persona--bride { right: 9vw; }
   .persona { bottom: 10vh; }
-  .rsvp__kolam { width: 110px; height: 110px; }
+  .rsvp__lamps { width: 156px; }
 }
 
 @media (min-width: 1024px) {

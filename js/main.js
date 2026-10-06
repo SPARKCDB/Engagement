@@ -114,13 +114,27 @@
   /* 2 · Links: maps, WhatsApp, calendar                                 */
   /* ------------------------------------------------------------------ */
   const Links = {
-    maps() {
-      return CFG.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CFG.venue || "")}`;
+    maps(path = "venue.google") {
+      const [place, app] = path.split(".");
+      const url = ((CFG.maps || {})[place] || {})[app];
+      return url || CFG.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CFG.venue || "")}`;
     },
-    whatsapp() {
-      const num = String(CFG.whatsappNumber || "").replace(/\D/g, "");
+    contacts() {
+      const list = CFG.whatsappContacts || (CFG.whatsappNumber ? [{ number: CFG.whatsappNumber }] : []);
+      return list.map((c) => ({ number: String(c.number || "").replace(/\D/g, ""), label: c.label || "" })).filter((c) => c.number);
+    },
+    whatsapp(number) {
       const text = encodeURIComponent(CFG.rsvpMessage || "");
-      return num ? `https://wa.me/${num}?text=${text}` : `https://wa.me/?text=${text}`;
+      return number ? `https://wa.me/${number}?text=${text}` : `https://wa.me/?text=${text}`;
+    },
+    // "60146155770" → "+60 14-615 5770"
+    prettyNumber(n) {
+      if (!n.startsWith("60") || n.length < 10) return `+${n}`;
+      const rest = n.slice(2);
+      const pre = rest.slice(0, 2);
+      const tail = rest.slice(2);
+      const cut = tail.length - 4;
+      return `+60 ${pre}-${tail.slice(0, cut)} ${tail.slice(cut)}`;
     },
     eventTitle() { return `Engagement · ${CFG.groom} & ${CFG.bride}`; },
     eventDetails() {
@@ -167,12 +181,21 @@
   };
 
   function initActions() {
-    $$('[data-action="maps"]').forEach((a) => { a.href = Links.maps(); });
-    $$('[data-action="rsvp"]').forEach((a) => {
-      a.href = Links.whatsapp();
-      a.setAttribute("aria-label", "RSVP on WhatsApp (opens in a new tab)");
+    $$("[data-map]").forEach((a) => { a.href = Links.maps(a.dataset.map); });
+
+    // One WhatsApp RSVP button per contact
+    const holder = $("#rsvp-contacts");
+    const contacts = Links.contacts();
+    (contacts.length ? contacts : [{ number: "", label: "" }]).forEach((c) => {
+      const a = doc.createElement("a");
+      a.className = "btn btn--maroon btn--wide";
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.href = Links.whatsapp(c.number);
+      a.textContent = c.label || (c.number ? Links.prettyNumber(c.number) : "RSVP");
+      a.setAttribute("aria-label", `RSVP on WhatsApp${c.number ? ` to ${c.label || Links.prettyNumber(c.number)}` : ""} (opens in a new tab)`);
+      holder.appendChild(a);
     });
-    if (!CFG.whatsappNumber) console.info("[invitation] Set whatsappNumber in js/config.js to send RSVPs to a specific number.");
 
     // Calendar choice menu
     const menu = $("#cal-menu");
