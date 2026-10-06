@@ -599,12 +599,12 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
 .rsvp { padding: clamp(6rem, 16vh, 10rem) 6vw; text-align: center; }
 .rsvp__inner { max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
 .rsvp__lamps { width: 132px; height: auto; margin-bottom: 2.2rem; mix-blend-mode: multiply; }
-.rsvp__label {
-  font-family: var(--f-title); font-size: .66rem; letter-spacing: .4em; padding-left: .4em;
-  text-transform: uppercase; color: var(--gold-ink);
+#rsvp-button { letter-spacing: .32em; padding-left: calc(1.5rem + .32em); }
+.rsvp__note {
+  margin-top: -.2rem; font-family: var(--f-display); font-style: italic; font-size: 1.05rem;
+  color: rgba(33,28,24,.75); font-variant-numeric: lining-nums;
 }
-.rsvp__contacts { margin-top: 0; gap: .8rem; }
-.rsvp__contacts .btn { letter-spacing: .22em; padding-left: 1.5rem; font-variant-numeric: tabular-nums; }
+.rsvp__note:empty { display: none; }
 .rsvp__title {
   font-family: var(--f-title); font-weight: 400; text-transform: uppercase;
   font-size: clamp(1.2rem, 5.4vw, 2.1rem); letter-spacing: .16em; line-height: 1.55; color: var(--maroon);

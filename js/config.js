@@ -24,13 +24,15 @@ window.invitationConfig = {
   venueLines: ["No. 5, Lorong 1A/71E", "Off Jalan Carey", "Petaling Jaya, Selangor"],
 
   /* ---- Links --------------------------------------------------------- */
-  // WhatsApp numbers for RSVP, international format, digits only.
-  // Each gets its own button. Add a label (e.g. "Yogathipan") to show a name
-  // instead of the number.
-  whatsappContacts: [
-    { number: "60146155770", label: "" },
-    { number: "60173833995", label: "" },
-  ],
+  // WhatsApp RSVP. Each host has their own version of the invitation link:
+  //   …/index.html?rsvp=yogathipan   → replies go to Yogathipan
+  //   …/index.html?rsvp=selvarani    → replies go to Selvarani
+  // A link without ?rsvp= uses defaultRsvp. Numbers: international format, digits only.
+  rsvpContacts: {
+    yogathipan: { name: "Yogathipan", number: "60146155770" },
+    selvarani: { name: "Selvarani", number: "60173833995" },
+  },
+  defaultRsvp: "yogathipan",
   rsvpMessage:
     "Hi Yogathipan & Selvarani, I would like to confirm my attendance for your engagement on 24 October 2026.",
   // Directions. Any link left empty falls back to a Google Maps search of the venue.
@@ -41,7 +43,7 @@ window.invitationConfig = {
     },
     parking: {
       google: "https://maps.app.goo.gl/wsvasnfvvSDyhgAi8",
-      waze: "https://waze.com/ul/hw283938s0",
+      waze: "https://waze.com/ul/hw28393bbt",
     },
   },
 

@@ -119,9 +119,14 @@
       const url = ((CFG.maps || {})[place] || {})[app];
       return url || CFG.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CFG.venue || "")}`;
     },
-    contacts() {
-      const list = CFG.whatsappContacts || (CFG.whatsappNumber ? [{ number: CFG.whatsappNumber }] : []);
-      return list.map((c) => ({ number: String(c.number || "").replace(/\D/g, ""), label: c.label || "" })).filter((c) => c.number);
+    // Which host this copy of the invitation belongs to (?rsvp=selvarani or #selvarani)
+    rsvpContact() {
+      const contacts = CFG.rsvpContacts || {};
+      const params = new URLSearchParams(window.location.search);
+      const wanted = (params.get("rsvp") || window.location.hash.slice(1) || "").toLowerCase();
+      const key = contacts[wanted] ? wanted : CFG.defaultRsvp;
+      const c = contacts[key] || Object.values(contacts)[0] || {};
+      return { name: c.name || "", number: String(c.number || "").replace(/\D/g, "") };
     },
     whatsapp(number) {
       const text = encodeURIComponent(CFG.rsvpMessage || "");
@@ -181,28 +186,30 @@
   };
 
   function initActions() {
-    $$("[data-map]").forEach((a) => { a.href = Links.maps(a.dataset.map); });
+    // RSVP goes to the host whose version of the link the guest opened
+    const host = Links.rsvpContact();
+    const rsvp = $("#rsvp-button");
+    rsvp.href = Links.whatsapp(host.number);
+    rsvp.textContent = "RSVP on WhatsApp";
+    rsvp.setAttribute("aria-label", `RSVP on WhatsApp${host.name ? ` to ${host.name}` : ""} (opens in a new tab)`);
+    if (host.number) {
+      $("#rsvp-note").textContent = `Your reply goes to ${host.name || "us"} · ${Links.prettyNumber(host.number)}`;
+    }
 
-    // One WhatsApp RSVP button per contact
-    const holder = $("#rsvp-contacts");
-    const contacts = Links.contacts();
-    (contacts.length ? contacts : [{ number: "", label: "" }]).forEach((c) => {
-      const a = doc.createElement("a");
-      a.className = "btn btn--maroon btn--wide";
-      a.target = "_blank";
-      a.rel = "noopener";
-      a.href = Links.whatsapp(c.number);
-      a.textContent = c.label || (c.number ? Links.prettyNumber(c.number) : "RSVP");
-      a.setAttribute("aria-label", `RSVP on WhatsApp${c.number ? ` to ${c.label || Links.prettyNumber(c.number)}` : ""} (opens in a new tab)`);
-      holder.appendChild(a);
-    });
-
-    // Calendar choice menu
-    const menu = $("#cal-menu");
-    const google = $('[data-cal="google"]', menu);
-    const ics = $('[data-cal="ics"]', menu);
-    google.href = Links.googleCalendar();
+    // Choice menu: calendar, directions to the venue, directions to parking
+    const CHOICES = {
+      calendar: () => [
+        { label: "Google Calendar", href: Links.googleCalendar() },
+        { label: "Apple / Outlook (.ics)", run: () => Links.downloadIcs() },
+      ],
+      map: (place) => [
+        { label: "Google Maps", href: Links.maps(`${place}.google`) },
+        { label: "Waze", href: Links.maps(`${place}.waze`) },
+      ],
+    };
+    const menu = $("#choice-menu");
     let owner = null;
+    const items = () => $$(".cal-menu__item", menu);
 
     const close = (refocus) => {
       if (!owner) return;
@@ -212,8 +219,27 @@
       owner = null;
     };
     const open = (btn) => {
+      const [kind, arg] = btn.dataset.choices.split(":");
+      menu.textContent = "";
+      CHOICES[kind](arg).forEach((c) => {
+        const el = doc.createElement(c.href ? "a" : "button");
+        el.className = "cal-menu__item";
+        el.setAttribute("role", "menuitem");
+        el.textContent = c.label;
+        if (c.href) {
+          el.href = c.href;
+          el.target = "_blank";
+          el.rel = "noopener";
+          el.addEventListener("click", () => close(false));
+        } else {
+          el.type = "button";
+          el.addEventListener("click", () => { c.run(); close(true); });
+        }
+        menu.appendChild(el);
+      });
       owner = btn;
       btn.setAttribute("aria-expanded", "true");
+      menu.setAttribute("aria-label", btn.textContent.trim());
       menu.hidden = false;
       const r = btn.getBoundingClientRect();
       const mw = menu.offsetWidth;
@@ -223,24 +249,24 @@
       const top = below ? r.bottom + 8 : r.top - mh - 8;
       menu.style.left = `${left + window.scrollX}px`;
       menu.style.top = `${top + window.scrollY}px`;
-      google.focus({ preventScroll: true });
+      items()[0].focus({ preventScroll: true });
     };
 
-    $$('[data-action="calendar"]').forEach((btn) => {
+    $$("[data-choices]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (owner === btn) close(true); else { close(false); open(btn); }
       });
     });
-    ics.addEventListener("click", () => { Links.downloadIcs(); close(true); });
-    google.addEventListener("click", () => close(false));
     doc.addEventListener("click", (e) => { if (owner && !menu.contains(e.target)) close(false); });
     doc.addEventListener("keydown", (e) => {
       if (!owner) return;
       if (e.key === "Escape") close(true);
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
-        (doc.activeElement === google ? ics : google).focus();
+        const list = items();
+        const i = list.indexOf(doc.activeElement);
+        list[(i + (e.key === "ArrowDown" ? 1 : list.length - 1)) % list.length].focus();
       }
     });
     menu.addEventListener("focusout", (e) => {

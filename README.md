@@ -126,11 +126,22 @@ All content comes from **`js/config.js`**, and every page section reads from it.
 | Date | `date: "24 October 2026"` (format **DD Month YYYY**). The weekday, the big "24", "OCTOBER", "2026", "24 • 10 • 2026" and the calendar invite are all derived from it. |
 | Time | `time: "7:00 PM"`. `utcOffset` is the venue's time zone (`"+08:00"` for Malaysia), and `durationHours` sets the calendar event length. |
 | Venue | `venue` (one line, used for maps, calendar and RSVP) and `venueLines` (how it breaks onto lines on the invitation) |
-| WhatsApp RSVP | `whatsappContacts`: one entry per number (international format, digits only). Each gets its own RSVP button. Add a `label` (e.g. `"Yogathipan"`) to show a name instead of the number. The message itself is `rsvpMessage`. |
-| Maps | `maps.venue.google`, `maps.venue.waze`, `maps.parking.google`, `maps.parking.waze`: share links for the venue and the parking. Any empty link falls back to a Google Maps search of the venue address. |
+| WhatsApp RSVP | `rsvpContacts` (name + number for each host, international format, digits only) and `defaultRsvp`. The message itself is `rsvpMessage`. See **Two RSVP versions** below. |
+| Maps | `maps.venue.google`, `maps.venue.waze`, `maps.parking.google`, `maps.parking.waze`. Each Directions button opens a small menu with Google Maps and Waze. Any empty link falls back to a Google Maps search of the venue address. |
 | Video / poster paths | the `videos` object |
 | Video behaviour | `videoMode`: `"auto"` (scrub with scroll, and switch to normal playback on devices that seek slowly), `"scrub"` or `"play"` |
 | Music | `music`, `musicVolume` |
+
+### Two RSVP versions
+
+There is one website, and the link decides who receives the RSVP:
+
+| Share with | Link | RSVP goes to |
+|---|---|---|
+| Yogathipan's guests | `https://YOUR-SITE/?rsvp=yogathipan` | Yogathipan · +60 14-615 5770 |
+| Selvarani's guests | `https://YOUR-SITE/?rsvp=selvarani` | Selvarani · +60 17-383 3995 |
+
+A link without `?rsvp=` sends replies to `defaultRsvp` (Yogathipan). `#selvarani` at the end of the link works too. Below the button, guests see whose number their reply goes to.
 
 ---
 

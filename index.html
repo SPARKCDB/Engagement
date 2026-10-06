@@ -362,7 +362,7 @@
         <address class="details__venue" data-reveal data-bind-lines="venueLines"></address>
         <div class="actions" data-reveal>
           <div class="cal">
-            <button type="button" class="btn btn--maroon" data-action="calendar" aria-haspopup="true" aria-expanded="false">Add to Calendar</button>
+            <button type="button" class="btn btn--maroon" data-choices="calendar" aria-haspopup="menu" aria-expanded="false">Add to Calendar</button>
           </div>
           <button type="button" class="btn btn--line" data-goto="venue">View Location</button>
         </div>
@@ -382,14 +382,12 @@
         <svg class="divider" aria-hidden="true" data-reveal><use href="#orn-divider" /></svg>
         <address class="venue__address" data-reveal data-bind-lines="venueLines"></address>
         <div class="actions" data-reveal>
-          <a class="btn btn--gold" data-map="venue.google" target="_blank" rel="noopener">Open in Google Maps</a>
-          <a class="btn btn--gold" data-map="venue.waze" target="_blank" rel="noopener">Open in Waze</a>
+          <button type="button" class="btn btn--gold" data-choices="map:venue" aria-haspopup="menu" aria-expanded="false">Get Directions</button>
         </div>
         <div class="parking" data-reveal>
           <h3 class="parking__title">Parking</h3>
           <div class="actions">
-            <a class="btn btn--gold" data-map="parking.google" target="_blank" rel="noopener">Parking · Google Maps</a>
-            <a class="btn btn--gold" data-map="parking.waze" target="_blank" rel="noopener">Parking · Waze</a>
+            <button type="button" class="btn btn--gold" data-choices="map:parking" aria-haspopup="menu" aria-expanded="false">Directions to Parking</button>
           </div>
         </div>
       </div>
@@ -435,14 +433,13 @@
           <p data-bind="venue"></p>
         </div>
         <div class="actions actions--stack" data-reveal>
-          <p class="rsvp__label">RSVP on WhatsApp</p>
-          <div class="actions actions--stack rsvp__contacts" id="rsvp-contacts"></div>
+          <a class="btn btn--maroon btn--wide" id="rsvp-button" target="_blank" rel="noopener">RSVP</a>
+          <p class="rsvp__note" id="rsvp-note"></p>
           <div class="actions">
             <div class="cal">
-              <button type="button" class="btn btn--line" data-action="calendar" aria-haspopup="true" aria-expanded="false">Add to Calendar</button>
+              <button type="button" class="btn btn--line" data-choices="calendar" aria-haspopup="menu" aria-expanded="false">Add to Calendar</button>
             </div>
-            <a class="btn btn--line" data-map="venue.google" target="_blank" rel="noopener">Google Maps</a>
-            <a class="btn btn--line" data-map="venue.waze" target="_blank" rel="noopener">Waze</a>
+            <button type="button" class="btn btn--line" data-choices="map:venue" aria-haspopup="menu" aria-expanded="false">Directions</button>
           </div>
         </div>
       </div>
@@ -457,11 +454,8 @@
     </footer>
   </main>
 
-  <!-- Calendar choice menu (positioned next to whichever button opened it) -->
-  <div class="cal-menu" id="cal-menu" role="menu" hidden>
-    <a role="menuitem" class="cal-menu__item" data-cal="google" target="_blank" rel="noopener">Google Calendar</a>
-    <button role="menuitem" type="button" class="cal-menu__item" data-cal="ics">Apple / Outlook (.ics)</button>
-  </div>
+  <!-- Choice menu (calendar / directions), positioned next to the button that opened it -->
+  <div class="cal-menu" id="choice-menu" role="menu" hidden></div>
 
   <audio id="bg-music" preload="none" loop></audio>
 
