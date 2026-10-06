@@ -65,6 +65,8 @@ ffmpeg -i input.mov -an -vf "scale=720:-2" -c:v libx264 -preset slow -crf 26 \
 
 Keep each clip short (4–8 s) and under about 6 MB where possible.
 
+> The videos currently in `assets/video/` have already been re-encoded this way (keyframe every 6 frames, audio removed). `scene10_hero.mp4` has not been uploaded yet; until it is, the hero scene shows `posters/scene10_hero.jpg` (the last frame of the staircase video).
+
 **Optional WebM.** Put a `.webm` copy next to each `.mp4` (same name) and set `videoFormats: ["webm", "mp4"]` in `js/config.js`:
 
 ```bash
@@ -83,14 +85,14 @@ ffmpeg -i assets/video/scene01_doors.mp4 -frames:v 1 -q:v 4 assets/images/poster
 
 Posters show while a video loads, if a video fails, and for visitors who prefer reduced motion.
 
-### Images → `assets/images/`
+### Images → `assets/images/posters/`
 
 | File | Used for |
 |---|---|
-| `invitation-card.png` | Texture of the card that fills the screen after the hand reaches it, and a fallback poster for the card-opening scene |
+| `invitation-card.png` | Fallback poster for the card-opening scene |
 | `groom.png` | Fallback still for the groom scene |
-| `bride.png` | Fallback still for the bride scene |
-| `ornamental-elements.png` | Subtle gold overlay on "The Celebration" venue section (best as gold on a transparent or black background) |
+| `Bride.png` | Fallback still for the bride scene (file names are case-sensitive on most hosts) |
+| `ornamental-elements.png` (in `assets/images/`) | Subtle gold overlay on "The Celebration" venue section (best as gold on a transparent or black background) |
 
 All four are optional. If one is missing, it's simply skipped.
 

@@ -235,7 +235,7 @@ body.ui-light .music-toggle { background: rgba(247,240,226,.65); color: var(--da
 
 .shade { position: absolute; inset: 0; pointer-events: none; }
 .shade--soft { background: linear-gradient(180deg, rgba(33,28,24,.38) 0%, transparent 24%, transparent 68%, rgba(33,28,24,.5) 100%); }
-.shade--bottom { background: linear-gradient(180deg, rgba(33,28,24,.3) 0%, transparent 22%, transparent 48%, rgba(33,28,24,.78) 100%); }
+.shade--bottom { background: linear-gradient(180deg, rgba(33,28,24,.3) 0%, transparent 22%, transparent 52%, rgba(33,28,24,.55) 70%, rgba(33,28,24,.9) 100%); }
 .shade--hero { background: linear-gradient(180deg, rgba(33,28,24,.25) 0%, transparent 20%, transparent 55%, rgba(33,28,24,.82) 100%); }
 
 .veil { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
@@ -293,11 +293,11 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
 
 /* --- Groom / Bride titles --- */
 .persona {
-  position: absolute; bottom: calc(var(--safe-b) + 11vh + (var(--vh-full) - 100svh));
+  position: absolute; bottom: calc(var(--safe-b) + 7vh + (var(--vh-full) - 100svh));
   max-width: 82vw; color: var(--ivory);
-  text-shadow: 0 2px 24px rgba(20,10,8,.55);
+  text-shadow: 0 1px 3px rgba(20,10,8,.6), 0 2px 24px rgba(20,10,8,.7);
 }
-@supports not (height: 100svh) { .persona { bottom: calc(var(--safe-b) + 11vh); } }
+@supports not (height: 100svh) { .persona { bottom: calc(var(--safe-b) + 7vh); } }
 .persona--groom { left: 7vw; text-align: left; }
 .persona--bride { right: 7vw; text-align: right; }
 .persona__label {
@@ -673,7 +673,7 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
 @media (min-width: 768px) {
   .persona--groom { left: 9vw; }
   .persona--bride { right: 9vw; }
-  .persona { bottom: 14vh; }
+  .persona { bottom: 10vh; }
   .rsvp__kolam { width: 110px; height: 110px; }
 }
 

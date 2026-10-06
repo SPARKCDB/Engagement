@@ -61,7 +61,7 @@ window.invitationConfig = {
       position: "center center",
       positionMobile: "center center",
       // Where the sealed invitation sits in the frame (zoom target).
-      focus: "50% 58%",
+      focus: "50% 55%",
     },
     invitation: {
       src: "assets/video/scene04_invitation.mp4",
@@ -71,21 +71,21 @@ window.invitationConfig = {
     },
     cardOpen: {
       src: "assets/video/scene05_card_open.mp4",
-      poster: ["assets/images/posters/scene05_card_open.jpg", "assets/images/invitation-card.png"],
+      poster: ["assets/images/posters/scene05_card_open.jpg", "assets/images/posters/invitation-card.png"],
       position: "center center",
       positionMobile: "center center",
     },
     groom: {
       src: "assets/video/scene06_groom.mp4",
-      poster: ["assets/images/posters/scene06_groom.jpg", "assets/images/groom.png"],
+      poster: ["assets/images/posters/scene06_groom.jpg", "assets/images/posters/groom.png"],
       position: "center center",
-      positionMobile: "center right",
+      positionMobile: "center center",
     },
     bride: {
       src: "assets/video/scene07_bride.mp4",
-      poster: ["assets/images/posters/scene07_bride.jpg", "assets/images/bride.png"],
+      poster: ["assets/images/posters/scene07_bride.jpg", "assets/images/posters/Bride.png"],
       position: "center center",
-      positionMobile: "center left",
+      positionMobile: "center center",
     },
     meeting: {
       src: "assets/video/scene08_meeting.mp4",
@@ -108,7 +108,7 @@ window.invitationConfig = {
   },
 
   images: {
-    invitationCard: "assets/images/invitation-card.png",
+    invitationCard: "assets/images/posters/invitation-card.png",
     ornaments: "assets/images/ornamental-elements.png",
   },
 
