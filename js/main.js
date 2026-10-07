@@ -1068,7 +1068,7 @@
       this.opened = true;
       const next = this.stops.find((st) => st.y > this.gateY + 3);
       if (!next) return;
-      const seconds = clamp(((next.y - window.scrollY) / vh) * this.SECONDS_PER_SCREEN * 2, 3, 16);
+      const seconds = clamp(((next.y - window.scrollY) / vh) * this.SECONDS_PER_SCREEN * 4, 6, 30);
       this.glide(next.y, seconds, (t) => -(Math.cos(Math.PI * t) - 1) / 2);
     },
     nudgeTap() {
