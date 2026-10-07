@@ -932,33 +932,33 @@
     touching: false,
     dir: 1,
     idleTimer: 0,
-    hintTimer: 0,
     SECONDS_PER_SCREEN: 1.7,
 
     init() {
-      if (!lenis) return;
       this.hint = $("#continue-hint");
+      if (!lenis) return;
       const cancel = () => {
         if (!this.active) return;
         this.active = false;
         lenis.scrollTo(window.scrollY, { immediate: true, force: true });
       };
-      window.addEventListener("touchstart", () => { this.touching = true; cancel(); this.hideHint(); }, { passive: true });
+      window.addEventListener("touchstart", () => { this.touching = true; cancel(); }, { passive: true });
       window.addEventListener("touchend", () => { this.touching = false; this.schedule(); }, { passive: true });
-      window.addEventListener("wheel", () => { this.active = false; this.hideHint(); }, { passive: true });
+      window.addEventListener("wheel", () => { this.active = false; }, { passive: true });
       window.addEventListener("keydown", (e) => {
-        if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", " ", "Home", "End"].includes(e.key)) { cancel(); this.hideHint(); }
+        if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", " ", "Home", "End"].includes(e.key)) cancel();
       });
       lenis.on("scroll", ({ direction }) => {
         if (this.active) return;
         if (direction) this.dir = direction;
-        this.hideHint();
         this.schedule();
       });
     },
 
     // Chapter end points, in page pixels. Rebuilt whenever the layout is measured.
     build() {
+      const top0 = doc.getElementById("rsvp");
+      this.freeFrom = top0 ? top0.getBoundingClientRect().top + window.scrollY : Infinity;
       if (!lenis) return;
       const scene = (id) => scenes.find((s) => s.section.id === id);
       const at = (id, p) => { const s = scene(id); return s ? s.top + p * (s.pEnd - s.top) : null; };
@@ -971,22 +971,25 @@
       };
       const details = doc.getElementById("details");
       const detailsEnd = details ? top("details") + details.offsetHeight - vh : null;
-      this.freeFrom = top("rsvp") ?? Infinity;
+      const venue = doc.getElementById("venue");
+      const venueStop = venue ? top("venue") + Math.max(0, venue.offsetHeight - vh) + 110 : null;
+      // [position, pace] — pace slows the glide into that stop (1 = normal).
       this.stops = [
-        0,
-        at("scene-vinayagar", 0.2),       // doors open, walk in, Vinayagar appears
-        top("scene-card") + 2,            // Vinayagar presents and turns the invitation
-        cardAt("names") ?? top("invite"), // the card opens: names
-        cardAt("date"),                   // date and time
-        at("scene-groom", 0.82),          // the groom
-        at("scene-bride", 0.82),          // the bride
-        top("details"),                   // they meet → engagement details
-        detailsEnd,
-        top("venue"),                     // the celebration
-        at("scene-hero", 1),              // the staircase → seated together
-        this.freeFrom,                    // RSVP
-      ].filter((y) => y != null && isFinite(y)).sort((a, b) => a - b)
-        .filter((y, i, arr) => i === 0 || y - arr[i - 1] > 24);
+        [0, 1],
+        [at("scene-vinayagar", 0.2), 1],        // doors open, walk in, Vinayagar appears
+        [top("scene-card") + 2, 1],             // Vinayagar presents and turns the invitation
+        [cardAt("names") ?? top("invite"), 1],  // the card opens: names
+        [cardAt("date"), 1],                    // date and time
+        [at("scene-groom", 0.82), 1],           // the groom
+        [at("scene-bride", 0.82), 1],           // the bride
+        [top("details"), 1],                    // they meet → engagement details
+        [detailsEnd, 1],
+        [venueStop, 1],                         // the celebration (buttons clear of the hint)
+        [at("scene-hero", 1), 1.6],             // the staircase → seated together (slower)
+        [this.freeFrom, 1],                     // RSVP
+      ].filter(([y]) => y != null && isFinite(y)).sort((x, z) => x[0] - z[0])
+        .filter(([y], i, arr) => i === 0 || y - arr[i - 1][0] > 24)
+        .map(([y, pace]) => ({ y, pace }));
     },
 
     schedule() {
@@ -1002,42 +1005,36 @@
       if (y >= this.freeFrom - 2) return;
       const stops = this.stops;
       let i = 0;
-      while (i < stops.length - 1 && stops[i + 1] <= y) i += 1;
-      const a = stops[i];
-      const b = stops[i + 1];
-      if (b == null) return;
-      if (Math.abs(y - a) < 3) { this.showHintSoon(); return; }
-      if (Math.abs(y - b) < 3) { this.showHintSoon(); return; }
+      while (i < stops.length - 1 && stops[i + 1].y <= y) i += 1;
+      if (!stops[i + 1]) return;
+      const a = stops[i].y;
+      const b = stops[i + 1].y;
+      const pace = stops[i + 1].pace;
+      if (Math.abs(y - a) < 3 || Math.abs(y - b) < 3) return;
       // Moving forward: any deliberate start continues the chapter. Backwards: return to its start.
       const NUDGE = 30;
       const target = this.dir > 0 ? (y - a > NUDGE ? b : a) : (b - y > NUDGE ? a : b);
-      const seconds = clamp((Math.abs(target - y) / vh) * this.SECONDS_PER_SCREEN, 0.7, 11);
+      const seconds = clamp((Math.abs(target - y) / vh) * this.SECONDS_PER_SCREEN * pace, 0.7, 16);
       this.glide(target, seconds, (t) => -(Math.cos(Math.PI * t) - 1) / 2);
     },
 
     glide(y, seconds, easing) {
       if (!lenis) return;
       this.active = true;
-      this.hideHint();
       lenis.scrollTo(y, {
         duration: seconds,
         easing,
         force: true,
-        onComplete: () => {
-          this.active = false;
-          this.showHintSoon();
-        },
+        onComplete: () => { this.active = false; },
       });
     },
 
-    showHintSoon() {
-      clearTimeout(this.hintTimer);
-      if (!this.hint || window.scrollY >= this.freeFrom - 2 || window.scrollY < 10) return;
-      this.hintTimer = setTimeout(() => this.hint.classList.add("is-shown"), 3500);
-    },
-    hideHint() {
-      clearTimeout(this.hintTimer);
-      if (this.hint) this.hint.classList.remove("is-shown");
+    // "Scroll to continue" stays on screen through every scene, until the RSVP.
+    updateHint(y) {
+      if (!this.hint) return;
+      const show = body.classList.contains("has-begun") && y < this.freeFrom - vh * 0.35;
+      this.hint.classList.toggle("is-shown", show);
+      this.hint.classList.toggle("is-gliding", show && this.active);
     },
   };
 
@@ -1264,6 +1261,7 @@
       updateChrome(y);
       lastY = y;
     }
+    AutoScroll.updateHint(y);
     if (MOTION) {
       scenes.forEach((s) => s.media.update(s.visible, dt));
       Media.manage(y, now);

@@ -313,6 +313,7 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
   opacity: 0; pointer-events: none; transition: opacity .9s var(--ease), transform .9s var(--ease);
 }
 .continue-hint.is-shown { opacity: 1; transform: translate(-50%, 0); }
+.continue-hint.is-shown.is-gliding { opacity: .55; }
 body.ui-light .continue-hint { color: var(--maroon); text-shadow: none; background: radial-gradient(closest-side, rgba(247,240,226,.9), transparent); }
 body.ui-light .continue-hint svg { color: var(--dark-gold); }
 @keyframes bob { 0%, 100% { transform: translateY(0); opacity: .6; } 50% { transform: translateY(6px); opacity: 1; } }
@@ -334,11 +335,11 @@ body.ui-light .continue-hint svg { color: var(--dark-gold); }
 
 /* --- Groom / Bride titles --- */
 .persona {
-  position: absolute; bottom: calc(var(--safe-b) + 7vh + (var(--vh-full) - 100svh));
+  position: absolute; bottom: calc(var(--safe-b) + 6.5rem + 4vh + (var(--vh-full) - 100svh));
   max-width: 82vw; color: var(--ivory);
   text-shadow: 0 1px 3px rgba(20,10,8,.6), 0 2px 24px rgba(20,10,8,.7);
 }
-@supports not (height: 100svh) { .persona { bottom: calc(var(--safe-b) + 7vh); } }
+@supports not (height: 100svh) { .persona { bottom: calc(var(--safe-b) + 6.5rem + 4vh); } }
 .persona--groom { left: 7vw; text-align: left; }
 .persona--bride { right: 7vw; text-align: right; }
 .persona__label {
@@ -360,11 +361,11 @@ body.ui-light .continue-hint svg { color: var(--dark-gold); }
 /* --- Final hero title --- */
 .hero-text {
   position: absolute; left: 0; right: 0;
-  bottom: calc(var(--safe-b) + 9vh + (var(--vh-full) - 100svh));
+  bottom: calc(var(--safe-b) + 6.5rem + 4vh + (var(--vh-full) - 100svh));
   text-align: center; color: var(--ivory); padding: 0 6vw;
   text-shadow: 0 2px 30px rgba(20,10,8,.6);
 }
-@supports not (height: 100svh) { .hero-text { bottom: calc(var(--safe-b) + 9vh); } }
+@supports not (height: 100svh) { .hero-text { bottom: calc(var(--safe-b) + 6.5rem + 4vh); } }
 .hero-text__names {
   font-family: var(--f-display); font-weight: 300; font-style: italic;
   font-size: clamp(2.2rem, 9vw, 4.2rem); letter-spacing: .03em; line-height: 1.1;
@@ -799,7 +800,7 @@ body.ui-light .continue-hint svg { color: var(--dark-gold); }
 @media (min-width: 768px) {
   .persona--groom { left: 9vw; }
   .persona--bride { right: 9vw; }
-  .persona { bottom: 10vh; }
+  .persona { bottom: calc(6.5rem + 6vh); }
   .rsvp__lamps { width: 156px; }
 }
 
