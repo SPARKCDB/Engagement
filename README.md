@@ -183,6 +183,8 @@ Upload the whole folder as-is. No build is needed.
 
 **After every update:** `index.html` loads `css/style.css?v=…`, `js/config.js?v=…` and `js/main.js?v=…`. Change the `v=` value (e.g. to today's date plus a letter) whenever you edit those files, so phones load the new version straight away instead of a cached copy.
 
+**Link preview:** WhatsApp and other apps show `assets/images/og-invitation.jpg` (1200×630) when the link is shared. The `og:` tags in `index.html` point to it with the full `https://sparkcdb.github.io/Engagement/` address. Update those if the site moves to another address.
+
 Before sharing the link:
 
 1. Check `whatsappContacts` and the `maps` links.
