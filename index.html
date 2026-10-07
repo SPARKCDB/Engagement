@@ -17,7 +17,7 @@
   <script>
     document.documentElement.className = "js";
     // Safety net: if the scripts cannot load, never keep the visitor behind the loader.
-    setTimeout(function () { document.documentElement.classList.add("loader-timeout"); }, 14000);
+    window.__loaderTimeout = setTimeout(function () { document.documentElement.classList.add("loader-timeout"); }, 14000);
   </script>
 </head>
 
@@ -151,7 +151,7 @@
   <a class="skip-link" href="#details">Skip to the engagement details</a>
 
   <!-- ===================== LOADER ===================== -->
-  <div class="loader" id="loader" role="status" aria-live="polite" aria-label="Preparing the invitation">
+  <div class="loader" id="loader" aria-label="Opening the invitation">
     <div class="loader__inner">
       <div class="loader__emblem" aria-hidden="true">
         <svg class="loader__kolam"><use href="#orn-kolam" /></svg>
@@ -160,6 +160,13 @@
       <p class="loader__initials" data-bind="initials">Y &amp; S</p>
       <p class="loader__date" data-bind="dateDots"></p>
       <div class="loader__line" aria-hidden="true"><span></span></div>
+      <div class="loader__enter" id="enter" role="group" aria-labelledby="enter-title" hidden>
+        <p class="loader__invite" id="enter-title">You are invited</p>
+        <button type="button" class="btn btn--gold loader__btn" data-enter="sound">
+          <svg aria-hidden="true"><use href="#icon-music" /></svg>Open with music
+        </button>
+        <button type="button" class="loader__quiet" data-enter="quiet">Open without sound</button>
+      </div>
     </div>
   </div>
 

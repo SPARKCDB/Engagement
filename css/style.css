@@ -110,6 +110,30 @@ html.lenis, html.lenis body { height: auto; }
   transform-origin: left center; transform: scaleX(var(--p, 0)); transition: transform .9s var(--ease);
 }
 
+/* "Open the invitation" choice — the tap that lets the browser play music */
+.loader__line { transition: opacity .6s var(--ease); }
+.loader.is-gate .loader__line { opacity: 0; }
+.loader__enter {
+  display: flex; flex-direction: column; align-items: center; gap: 1.1rem;
+  margin-top: -1rem; opacity: 0; transform: translateY(10px);
+  transition: opacity 1.2s var(--ease), transform 1.2s var(--ease);
+}
+.loader__enter[hidden] { display: none; }
+.loader.is-gate .loader__enter { opacity: 1; transform: none; }
+.loader__invite {
+  font-family: var(--f-display); font-style: italic; font-size: 1.15rem; color: rgba(247,240,226,.82);
+  margin-bottom: .3rem;
+}
+.loader__btn { gap: .7rem; min-width: 15.5rem; }
+.loader__btn svg { width: 15px; height: 15px; flex: none; }
+.loader__quiet {
+  min-height: 44px; padding: .5rem 1rem;
+  font-family: var(--f-title); font-size: .6rem; letter-spacing: .26em; text-transform: uppercase;
+  color: rgba(247,240,226,.62); text-decoration: underline; text-underline-offset: .45em; text-decoration-color: rgba(198,161,91,.45);
+  transition: color .4s var(--ease);
+}
+.loader__quiet:hover, .loader__quiet:focus-visible { color: var(--ivory); }
+
 @keyframes kolam-draw { to { stroke-dashoffset: 0; } }
 @keyframes slow-turn { to { transform: rotate(360deg); } }
 @keyframes flicker {

@@ -100,7 +100,7 @@ All are optional. If one is missing, it's simply skipped.
 
 ### Music → `assets/audio/background-music.mp3`
 
-Music starts softly after the visitor's first tap, click or key press, because browsers block sound before that. A small gold note button in the corner plays or pauses it, and the site remembers the visitor's choice. If the file is missing, the button hides itself.
+When loading finishes, the opening screen asks **Open with music** or **Open without sound**. Browsers (especially iPhone Safari) never allow a page to start sound on its own, and that tap is what lets the music play. A small gold note button in the corner plays or pauses it at any time. If the music file is missing, the opening screen skips the question and the button hides itself.
 
 **Optional sound effects.** Put the files in `assets/audio/` and list them under `sounds` in `js/config.js`:
 

@@ -671,12 +671,13 @@
       // Browsers allow audio only after a gesture: start on the first one.
       const events = ["pointerup", "touchend", "keydown", "click"];
       const unlock = (e) => {
-        if (e.target && e.target.closest && e.target.closest("#music-toggle")) { done(); return; }
+        if (e.target && e.target.closest && e.target.closest("#music-toggle, #enter")) return;
         Media.primeAll();
         if (this.pref === "off") { done(); return; }
         this.play().then((ok) => { if (ok) done(); });
       };
       const done = () => events.forEach((ev) => window.removeEventListener(ev, unlock, true));
+      this.stopAutoUnlock = done;
       events.forEach((ev) => window.addEventListener(ev, unlock, { capture: true, passive: true }));
 
       doc.addEventListener("visibilitychange", () => {
@@ -684,6 +685,14 @@
           this.resume = false; this.audio.play().catch(() => {});
         }
       });
+    },
+    available() { return !!CFG.music && !this.btn.hidden; },
+    // The visitor's choice on the opening screen. The tap itself lets the browser play audio.
+    choose(withSound) {
+      if (this.stopAutoUnlock) this.stopAutoUnlock();
+      this.pref = withSound ? "on" : "off";
+      storage.set("ys-engagement-music", this.pref);
+      if (withSound) this.play();
     },
     setState(on) {
       this.on = on;
@@ -1155,6 +1164,7 @@
   /* ------------------------------------------------------------------ */
   /* 10 · Loader                                                          */
   /* ------------------------------------------------------------------ */
+  let failsafeTimer = 0;
   async function runLoader() {
     const loader = $("#loader");
     const line = $(".loader__line", loader);
@@ -1169,6 +1179,21 @@
     await Promise.all([Promise.all(tasks), wait(REDUCED ? 600 : 1900)]);
     line.style.setProperty("--p", 1);
     await wait(REDUCED ? 200 : 700);
+
+    if (Music.available()) {
+      // Ask once: with music or without. Browsers only allow sound after a tap,
+      // so this tap is what lets the music start.
+      clearTimeout(failsafeTimer);
+      const gate = $("#enter");
+      gate.hidden = false;
+      requestAnimationFrame(() => loader.classList.add("is-gate"));
+      $('[data-enter="sound"]', gate).focus({ preventScroll: true });
+      const withSound = await new Promise((resolve) => {
+        $$("[data-enter]", gate).forEach((btn) => btn.addEventListener("click", () => resolve(btn.dataset.enter === "sound"), { once: true }));
+      });
+      Music.choose(withSound);
+      Media.primeAll();
+    }
 
     window.scrollTo(0, 0);
     loader.classList.add("is-done");
@@ -1186,7 +1211,8 @@
   /* ------------------------------------------------------------------ */
   function init() {
     // Never leave the visitor behind the loader.
-    const failsafe = setTimeout(() => {
+    clearTimeout(window.__loaderTimeout);
+    failsafeTimer = setTimeout(() => {
       $("#loader").classList.add("is-done");
       body.classList.remove("is-loading");
       body.classList.add("is-ready");
@@ -1231,7 +1257,7 @@
     });
     window.addEventListener("load", () => { measure(); if (HAS_GSAP) window.ScrollTrigger.refresh(); });
 
-    runLoader().catch((e) => console.error(e)).finally(() => clearTimeout(failsafe));
+    runLoader().catch((e) => console.error(e)).finally(() => clearTimeout(failsafeTimer));
   }
 
   // If something unexpected breaks the cinematic engine, fall back to a calm static page.
