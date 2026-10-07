@@ -990,7 +990,7 @@
         [cardAt("date"), 1],                    // date and time
         [at("scene-groom", 0.82), 1],           // the groom
         [at("scene-bride", 0.82), 1],           // the bride
-        [top("details"), 1],                    // they meet → engagement details
+        [top("details"), 2],                    // they meet → engagement details (half speed)
         [detailsEnd, 1],
         [venueStop, 1],                         // the celebration (buttons clear of the hint)
         [at("scene-hero", 1), 1.6],             // the staircase → seated together (slower)
