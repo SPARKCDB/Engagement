@@ -483,9 +483,37 @@
         return;
       }
 
+      const target = this.targetTime();
+      // How fast the scroll is moving through this video (video seconds per second).
+      const tv = (target - (this.prevTarget == null ? target : this.prevTarget)) / dt;
+      this.prevTarget = target;
+      this.vel = (this.vel || 0) + (tv - (this.vel || 0)) * Math.min(1, dt * 6);
+
+      // During an automatic glide forward, let the video play natively at a matching
+      // speed. Seeking frame by frame looks jerky on phones; real playback is smooth.
+      if (AutoScroll.active && this.vel > 0.03) {
+        const err = target - v.currentTime;
+        if (Math.abs(err) > 0.75) { try { v.currentTime = target; } catch (e) { /* noop */ } }
+        const rate = clamp(this.vel + err * 1.2, 0.1, 4);
+        const now = performance.now();
+        if (now - (this.rateAt || 0) > 120 && Math.abs(v.playbackRate - rate) > 0.03) {
+          try { v.playbackRate = rate; } catch (e) { /* noop */ }
+          this.rateAt = now;
+        }
+        if (v.paused && target < this.duration - 0.05) { const pp = v.play(); if (pp && pp.catch) pp.catch(() => {}); }
+        this.current = v.currentTime;
+        this.driving = true;
+        return;
+      }
+      if (this.driving) {
+        this.driving = false;
+        v.pause();
+        try { v.playbackRate = 1; } catch (e) { /* noop */ }
+        this.current = v.currentTime;
+      }
+
       // Scrub: ease the playhead toward the scroll position.
       if (!v.paused && this.primed) v.pause();
-      const target = this.targetTime();
       const k = 1 - Math.pow(1 - 0.16, dt * 60);
       this.current += (target - this.current) * k;
       if (Math.abs(target - this.current) < 0.004) this.current = target;
@@ -981,24 +1009,38 @@
       const detailsEnd = details ? top("details") + details.offsetHeight - vh : null;
       const venue = doc.getElementById("venue");
       const venueStop = venue ? top("venue") + Math.max(0, venue.offsetHeight - vh) + 110 : null;
-      // [position, pace] — pace slows the glide into that stop (1 = normal).
+      // Chapter end points.
+      const namesY = cardAt("names") ?? top("invite");
+      const brideY = at("scene-bride", 0.82);
+      const heroTop = scene("scene-hero") ? scene("scene-hero").top : null;
+      const heroEnd = at("scene-hero", 1);
       this.stops = [
-        [0, 1],
-        [at("scene-vinayagar", 0.2), 1.35],     // doors open, walk in, Vinayagar appears (slower)
-        [top("scene-card") + 2, 1, "gate"],     // Vinayagar presents the sealed envelope → "Tap to open"
-        [cardAt("names") ?? top("invite"), 1],  // the card opens: names
-        [cardAt("date"), 1],                    // date and time
-        [at("scene-groom", 0.82), 1],           // the groom
-        [at("scene-bride", 0.82), 1],           // the bride
-        [top("details"), 2],                    // they meet → engagement details (half speed)
-        [detailsEnd, 1],
-        [venueStop, 1],                         // the celebration (buttons clear of the hint)
-        [at("scene-hero", 1), 1.6],             // the staircase → seated together (slower)
-        [this.freeFrom, 1],                     // RSVP
+        [0],
+        [at("scene-vinayagar", 0.2)],      // doors open, walk in, Vinayagar appears
+        [top("scene-card") + 2, "gate"],   // Vinayagar presents the sealed envelope → "Tap to open"
+        [namesY],                          // the card opens: names
+        [cardAt("date")],                  // date and time
+        [at("scene-groom", 0.82)],         // the groom
+        [brideY],                          // the bride
+        [top("details")],                  // they meet → engagement details
+        [detailsEnd],
+        [venueStop],                       // the celebration (buttons clear of the hint)
+        [heroEnd],                         // the staircase → seated together
+        [this.freeFrom],                   // RSVP
       ].filter(([y]) => y != null && isFinite(y)).sort((x, z) => x[0] - z[0])
         .filter(([y], i, arr) => i === 0 || y - arr[i - 1][0] > 24)
-        .map(([y, pace, kind]) => ({ y, pace, gate: kind === "gate" }));
+        .map(([y, kind]) => ({ y, gate: kind === "gate" }));
       const gate = this.stops.find((st) => st.gate);
+
+      // Pace zones: how slowly each stretch of the story plays (1 = normal, 2 = half speed).
+      const zone = (a, b, pace) => (a != null && b != null && isFinite(a) && isFinite(b) && b > a ? { a, b, pace } : null);
+      this.zones = [
+        zone(0, at("scene-vinayagar", 0.2), 1.35),        // entrance doors
+        zone(gate ? gate.y : null, namesY, 4),            // the card opening after "Tap to open"
+        zone(brideY, top("details"), 2),                  // they meet
+        zone(venueStop, heroTop, 1.6),                    // the staircase
+        zone(heroTop, heroEnd, 3),                        // seated together (about real time)
+      ].filter(Boolean);
       this.gateY = gate ? gate.y : null;
     },
 
@@ -1025,17 +1067,72 @@
       if (!stops[i + 1]) return;
       const a = stops[i].y;
       const b = stops[i + 1].y;
-      const pace = stops[i + 1].pace;
       if (Math.abs(y - a) < 3 || Math.abs(y - b) < 3) return;
       // Moving forward: any deliberate start continues the chapter. Backwards: return to its start.
       const NUDGE = 30;
       const target = this.dir > 0 ? (y - a > NUDGE ? b : a) : (b - y > NUDGE ? a : b);
-      const seconds = clamp((Math.abs(target - y) / vh) * this.SECONDS_PER_SCREEN * pace, 0.7, 16);
-      this.glide(target, seconds, (t) => -(Math.cos(Math.PI * t) - 1) / 2);
+      this.ride(target);
+    },
+
+    paceAt(pos) {
+      const B = vh * 0.7; // blend between scene speeds over most of a screen
+      let pace = 1;
+      for (const z of this.zones || []) {
+        const w = smooth(z.a - B / 2, z.a + B / 2, pos) * (1 - smooth(z.b - B / 2, z.b + B / 2, pos));
+        pace += (z.pace - 1) * w;
+      }
+      return pace;
+    },
+
+    // Glide to a chapter end at a steady, scene-paced speed. The timeline is
+    // precomputed (position against time) and played back frame by frame.
+    ride(target) {
+      if (!lenis) return;
+      const y0 = window.scrollY;
+      const dist = Math.abs(target - y0);
+      if (dist < 2) return;
+      const dir = target > y0 ? 1 : -1;
+      const n = Math.max(40, Math.ceil(dist / 6));
+      const ds = dist / n;
+      // Steady scene-paced timeline: time needed to reach each point.
+      const times = new Float64Array(n + 1);
+      for (let i = 0; i < n; i++) {
+        const speed = vh / (this.SECONDS_PER_SCREEN * this.paceAt(y0 + dir * (i + 0.5) * ds)); // px per second
+        times[i + 1] = times[i] + ds / speed;
+      }
+      // Played back with a soft start (it continues the visitor's own scroll) and a long gentle stop.
+      const total = times[n] * 1.12;
+      this.track = { y0, dir, ds, n, times, base: times[n], total, start: performance.now(), target };
+      this.active = true;
+      clearTimeout(this.safety);
+      this.safety = setTimeout(() => { this.active = false; }, total * 1000 + 1500);
+    },
+
+    // Called every frame: advance the current glide.
+    tick(now) {
+      const tr = this.track;
+      if (!tr) return;
+      if (!this.active) { this.track = null; return; }
+      const el = (now - tr.start) / 1000;
+      if (el >= tr.total) {
+        lenis.scrollTo(tr.target, { immediate: true, force: true });
+        this.track = null;
+        this.active = false;
+        return;
+      }
+      // Ease in time: starts at half speed, peaks gently, ends at rest.
+      const u = el / tr.total;
+      const w = 0.5 * u + 2 * u * u - 1.5 * u * u * u;
+      const bt = w * tr.base;
+      let lo = 0, hi = tr.n;
+      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (tr.times[mid] <= bt) lo = mid; else hi = mid; }
+      const frac = clamp((bt - tr.times[lo]) / (tr.times[lo + 1] - tr.times[lo]));
+      lenis.scrollTo(tr.y0 + tr.dir * (lo + frac) * tr.ds, { immediate: true, force: true });
     },
 
     glide(y, seconds, easing) {
       if (!lenis) return;
+      this.track = null;
       this.active = true;
       clearTimeout(this.safety);
       // Never leave the page thinking a glide is still running.
@@ -1068,8 +1165,7 @@
       this.opened = true;
       const next = this.stops.find((st) => st.y > this.gateY + 3);
       if (!next) return;
-      const seconds = clamp(((next.y - window.scrollY) / vh) * this.SECONDS_PER_SCREEN * 4, 6, 30);
-      this.glide(next.y, seconds, (t) => -(Math.cos(Math.PI * t) - 1) / 2);
+      this.ride(next.y);
     },
     nudgeTap() {
       if (!this.tap) return;
@@ -1295,6 +1391,7 @@
     const dt = Math.min(0.1, Math.max(0.001, (now - lastT) / 1000));
     lastT = now;
     if (lenis && !HAS_GSAP) lenis.raf(now);
+    AutoScroll.tick(now);
     const y = window.scrollY;
     if (y !== lastY) {
       if (lastY >= 0) scrollDir = y > lastY ? 1 : -1;
@@ -1407,6 +1504,7 @@
     safely("reveals", initReveals);
     safely("navigation", initNavigation);
     safely("auto scroll", () => AutoScroll.init());
+    window.invitationDebug = { autoScroll: AutoScroll };
     safely("music", () => Music.init());
     measure();
     startLoop();
