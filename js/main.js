@@ -918,7 +918,7 @@
   function scrollToTarget(target) {
     if (!target) return;
     const y = target.getBoundingClientRect().top + window.scrollY;
-    if (lenis) AutoScroll.glide(y, 2.6, (t) => 1 - Math.pow(1 - t, 4));
+    if (lenis) { AutoScroll.opened = true; AutoScroll.glide(y, 2.6, (t) => 1 - Math.pow(1 - t, 4)); }
     else window.scrollTo({ top: y, behavior: REDUCED ? "auto" : "smooth" });
   }
 
@@ -936,7 +936,15 @@
 
     init() {
       this.hint = $("#continue-hint");
-      if (!lenis) return;
+      this.tap = $("#tap-open");
+      if (!lenis) { if (this.tap) this.tap.remove(); this.tap = null; return; }
+      this.tap.addEventListener("click", (e) => { e.stopPropagation(); this.open(); });
+      // Elders may tap anywhere on the envelope, not only the button.
+      window.addEventListener("click", (e) => {
+        if (!this.atGate) return;
+        if (e.target.closest && e.target.closest("button, a, input, label, #progress")) return;
+        this.open();
+      });
       const cancel = () => {
         if (!this.active) return;
         this.active = false;
@@ -977,7 +985,7 @@
       this.stops = [
         [0, 1],
         [at("scene-vinayagar", 0.2), 1],        // doors open, walk in, Vinayagar appears
-        [top("scene-card") + 2, 1],             // Vinayagar presents and turns the invitation
+        [top("scene-card") + 2, 1, "gate"],     // Vinayagar presents the sealed envelope → "Tap to open"
         [cardAt("names") ?? top("invite"), 1],  // the card opens: names
         [cardAt("date"), 1],                    // date and time
         [at("scene-groom", 0.82), 1],           // the groom
@@ -989,7 +997,9 @@
         [this.freeFrom, 1],                     // RSVP
       ].filter(([y]) => y != null && isFinite(y)).sort((x, z) => x[0] - z[0])
         .filter(([y], i, arr) => i === 0 || y - arr[i - 1][0] > 24)
-        .map(([y, pace]) => ({ y, pace }));
+        .map(([y, pace, kind]) => ({ y, pace, gate: kind === "gate" }));
+      const gate = this.stops.find((st) => st.gate);
+      this.gateY = gate ? gate.y : null;
     },
 
     schedule() {
@@ -1003,6 +1013,12 @@
       if (body.classList.contains("is-loading")) return;
       const y = window.scrollY;
       if (y >= this.freeFrom - 2) return;
+      if (this.gateY != null && !this.opened && y > this.gateY + 3 && y < this.gateY + vh * 6) {
+        // The invitation opens with a tap, not a scroll: return to the envelope.
+        this.glide(this.gateY, clamp(((y - this.gateY) / vh) * 0.8, 0.6, 2.5), (t) => 1 - Math.pow(1 - t, 3));
+        this.nudgeTap();
+        return;
+      }
       const stops = this.stops;
       let i = 0;
       while (i < stops.length - 1 && stops[i + 1].y <= y) i += 1;
@@ -1032,9 +1048,31 @@
     // "Scroll to continue" stays on screen through every scene, until the RSVP.
     updateHint(y) {
       if (!this.hint) return;
-      const show = body.classList.contains("has-begun") && y < this.freeFrom - vh * 0.35;
+      const begun = body.classList.contains("has-begun");
+      this.atGate = begun && this.gateY != null && !this.opened && !this.active && Math.abs(y - this.gateY) < 8;
+      if (this.tap) {
+        this.tap.classList.toggle("is-shown", this.atGate);
+        this.tap.tabIndex = this.atGate ? 0 : -1;
+      }
+      const show = begun && !this.atGate && y < this.freeFrom - vh * 0.35;
       this.hint.classList.toggle("is-shown", show);
       this.hint.classList.toggle("is-gliding", show && this.active);
+    },
+
+    // Tap on the sealed envelope: play the card opening and stop on the names.
+    open() {
+      if (this.opened || this.gateY == null) return;
+      this.opened = true;
+      const next = this.stops.find((st) => st.y > this.gateY + 3);
+      if (!next) return;
+      const seconds = clamp(((next.y - window.scrollY) / vh) * this.SECONDS_PER_SCREEN * 1.25, 2, 12);
+      this.glide(next.y, seconds, (t) => -(Math.cos(Math.PI * t) - 1) / 2);
+    },
+    nudgeTap() {
+      if (!this.tap) return;
+      this.tap.classList.remove("is-nudged");
+      void this.tap.offsetWidth;
+      this.tap.classList.add("is-nudged");
     },
   };
 

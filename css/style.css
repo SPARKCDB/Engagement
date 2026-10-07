@@ -330,6 +330,43 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
   .swipe__hand { opacity: 1; transform: none; }
 }
 
+/* "Tap to open" over the sealed envelope */
+.tap-open {
+  position: fixed; z-index: 46; left: 50%; top: 50%;
+  display: flex; flex-direction: column; align-items: center; gap: .9rem;
+  transform: translate(-50%, -38%) scale(.94);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .8s var(--ease), transform .8s var(--ease), visibility 0s linear .8s;
+}
+.tap-open.is-shown { opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, -38%); transition-delay: 0s; }
+.tap-open__ring {
+  position: relative; width: 132px; height: 132px; border-radius: 50%;
+  border: 2px solid var(--gold-light); box-shadow: 0 0 0 1px rgba(62,16,22,.35), 0 0 40px rgba(230,205,148,.45);
+  animation: tap-ring 1.8s ease-out infinite;
+}
+.tap-open__ring::after {
+  content: ""; position: absolute; inset: -14px; border-radius: 50%; border: 1px solid rgba(230,205,148,.7);
+  animation: tap-ripple 1.8s ease-out infinite;
+}
+.tap-open__hand {
+  position: absolute; left: 50%; top: 82px; width: 48px; height: 64px; margin-left: -24px;
+  color: var(--ivory); filter: drop-shadow(0 2px 6px rgba(0,0,0,.65));
+  animation: tap-hand 1.8s ease-in-out infinite;
+}
+.tap-open__label {
+  margin-top: 2.6rem; padding: .55rem 1.3rem .5rem calc(1.3rem + .24em);
+  font-family: var(--f-title); font-weight: 600; font-size: clamp(1.15rem, 5vw, 1.4rem); letter-spacing: .24em;
+  text-transform: uppercase; white-space: nowrap; color: var(--ivory);
+  background: rgba(62,16,22,.82); border: 1px solid var(--gold);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+.tap-open:focus-visible .tap-open__label { outline: 2px solid var(--gold-light); outline-offset: 4px; }
+.tap-open.is-nudged .tap-open__label { animation: tap-nudge .6s ease-in-out 2; }
+@keyframes tap-ring { 0%, 100% { transform: scale(1); } 40% { transform: scale(.92); } }
+@keyframes tap-ripple { 0%, 30% { opacity: 0; transform: scale(.8); } 45% { opacity: 1; } 100% { opacity: 0; transform: scale(1.35); } }
+@keyframes tap-hand { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-14px) scale(.94); } }
+@keyframes tap-nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
 /* Reminder shown when a visitor pauses at the end of a chapter */
 .continue-hint {
   position: fixed; z-index: 45; left: 50%; bottom: calc(var(--safe-b) + 1.6rem);
