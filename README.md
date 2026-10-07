@@ -191,6 +191,8 @@ Before sharing the link:
 
 ## 5. How it works
 
+- **Chapters (auto-scroll).** A small scroll starts a chapter, and the page glides on by itself to the chapter's end: doors open → Vinayagar appears; Vinayagar turns the invitation; the card opens with the names; the date; the groom; the bride; they meet → details; the venue; the staircase → seated together. Scrolling backwards returns to the start of the chapter. Any touch, wheel or key press during a glide stops it. From the RSVP form onward, scrolling is free. If a visitor pauses at a chapter end, a "Scroll to continue" reminder appears after a few seconds. The stops are listed in `AutoScroll.build()` in `js/main.js`, and `SECONDS_PER_SCREEN` sets the glide speed.
+
 - **Scroll engine.** Each video scene is a tall section. Its full-screen stage is pinned, and scroll position drives the video's `currentTime` with smoothing. Scenes crossfade through a warm golden glow, darkness or ivory paper, so the transitions feel continuous.
 - **Memory.** Only the visible scene and the next one are loaded. Videos you've scrolled past are unloaded after a moment.
 - **Fallbacks.** In order: video → poster → designed artwork. If seeking is slow on a device, that video switches to normal playback.

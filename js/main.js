@@ -824,6 +824,7 @@
         light: el.dataset.theme === "light", quiet: el.dataset.quiet === "1" };
     });
     lastY = -1;
+    AutoScroll.build();
   }
 
   function updateScene(s, y) {
@@ -917,9 +918,128 @@
   function scrollToTarget(target) {
     if (!target) return;
     const y = target.getBoundingClientRect().top + window.scrollY;
-    if (lenis) lenis.scrollTo(y, { duration: 2.6, easing: (t) => 1 - Math.pow(1 - t, 4) });
+    if (lenis) AutoScroll.glide(y, 2.6, (t) => 1 - Math.pow(1 - t, 4));
     else window.scrollTo({ top: y, behavior: REDUCED ? "auto" : "smooth" });
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Auto-scroll: once a visitor starts a chapter, glide to its end       */
+  /* ------------------------------------------------------------------ */
+  const AutoScroll = {
+    stops: [],
+    freeFrom: Infinity,  // below this point (the RSVP form) scrolling is free
+    active: false,       // a glide is running
+    touching: false,
+    dir: 1,
+    idleTimer: 0,
+    hintTimer: 0,
+    SECONDS_PER_SCREEN: 1.7,
+
+    init() {
+      if (!lenis) return;
+      this.hint = $("#continue-hint");
+      const cancel = () => {
+        if (!this.active) return;
+        this.active = false;
+        lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+      };
+      window.addEventListener("touchstart", () => { this.touching = true; cancel(); this.hideHint(); }, { passive: true });
+      window.addEventListener("touchend", () => { this.touching = false; this.schedule(); }, { passive: true });
+      window.addEventListener("wheel", () => { this.active = false; this.hideHint(); }, { passive: true });
+      window.addEventListener("keydown", (e) => {
+        if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", " ", "Home", "End"].includes(e.key)) { cancel(); this.hideHint(); }
+      });
+      lenis.on("scroll", ({ direction }) => {
+        if (this.active) return;
+        if (direction) this.dir = direction;
+        this.hideHint();
+        this.schedule();
+      });
+    },
+
+    // Chapter end points, in page pixels. Rebuilt whenever the layout is measured.
+    build() {
+      if (!lenis) return;
+      const scene = (id) => scenes.find((s) => s.section.id === id);
+      const at = (id, p) => { const s = scene(id); return s ? s.top + p * (s.pEnd - s.top) : null; };
+      const top = (id) => { const el = doc.getElementById(id); return el ? el.getBoundingClientRect().top + window.scrollY : null; };
+      const cardAt = (label) => {
+        const tl = cardTimeline;
+        if (!tl || !tl.scrollTrigger || tl.labels[label] == null) return null;
+        const st = tl.scrollTrigger;
+        return st.start + (st.end - st.start) * (tl.labels[label] / tl.duration());
+      };
+      const details = doc.getElementById("details");
+      const detailsEnd = details ? top("details") + details.offsetHeight - vh : null;
+      this.freeFrom = top("rsvp") ?? Infinity;
+      this.stops = [
+        0,
+        at("scene-vinayagar", 0.2),       // doors open, walk in, Vinayagar appears
+        top("scene-card") + 2,            // Vinayagar presents and turns the invitation
+        cardAt("names") ?? top("invite"), // the card opens: names
+        cardAt("date"),                   // date and time
+        at("scene-groom", 0.82),          // the groom
+        at("scene-bride", 0.82),          // the bride
+        top("details"),                   // they meet → engagement details
+        detailsEnd,
+        top("venue"),                     // the celebration
+        at("scene-hero", 1),              // the staircase → seated together
+        this.freeFrom,                    // RSVP
+      ].filter((y) => y != null && isFinite(y)).sort((a, b) => a - b)
+        .filter((y, i, arr) => i === 0 || y - arr[i - 1] > 24);
+    },
+
+    schedule() {
+      clearTimeout(this.idleTimer);
+      this.idleTimer = setTimeout(() => this.settle(), 160);
+    },
+
+    // Called when the visitor stops scrolling between two chapter ends.
+    settle() {
+      if (this.active || this.touching || !lenis || !this.stops.length) return;
+      if (body.classList.contains("is-loading")) return;
+      const y = window.scrollY;
+      if (y >= this.freeFrom - 2) return;
+      const stops = this.stops;
+      let i = 0;
+      while (i < stops.length - 1 && stops[i + 1] <= y) i += 1;
+      const a = stops[i];
+      const b = stops[i + 1];
+      if (b == null) return;
+      if (Math.abs(y - a) < 3) { this.showHintSoon(); return; }
+      if (Math.abs(y - b) < 3) { this.showHintSoon(); return; }
+      // Moving forward: any deliberate start continues the chapter. Backwards: return to its start.
+      const NUDGE = 30;
+      const target = this.dir > 0 ? (y - a > NUDGE ? b : a) : (b - y > NUDGE ? a : b);
+      const seconds = clamp((Math.abs(target - y) / vh) * this.SECONDS_PER_SCREEN, 0.7, 11);
+      this.glide(target, seconds, (t) => -(Math.cos(Math.PI * t) - 1) / 2);
+    },
+
+    glide(y, seconds, easing) {
+      if (!lenis) return;
+      this.active = true;
+      this.hideHint();
+      lenis.scrollTo(y, {
+        duration: seconds,
+        easing,
+        force: true,
+        onComplete: () => {
+          this.active = false;
+          this.showHintSoon();
+        },
+      });
+    },
+
+    showHintSoon() {
+      clearTimeout(this.hintTimer);
+      if (!this.hint || window.scrollY >= this.freeFrom - 2 || window.scrollY < 10) return;
+      this.hintTimer = setTimeout(() => this.hint.classList.add("is-shown"), 3500);
+    },
+    hideHint() {
+      clearTimeout(this.hintTimer);
+      if (this.hint) this.hint.classList.remove("is-shown");
+    },
+  };
 
   function initNavigation() {
     $$("[data-goto]").forEach((btn) => {
@@ -1072,6 +1192,7 @@
   /* ------------------------------------------------------------------ */
   /* 8 · The invitation card choreography (GSAP + ScrollTrigger)         */
   /* ------------------------------------------------------------------ */
+  let cardTimeline = null;
   function initCardTimeline() {
     if (!MOTION || !HAS_GSAP) return;
     const { gsap } = window;
@@ -1103,6 +1224,7 @@
       }
     });
     tl.to({}, { duration: 1.6 }); // let the names breathe
+    tl.addLabel("names", "-=0.6");
     tl.to(phase1, { opacity: 0, y: -36, duration: 1.1, ease: "power2.in" });
     s2.forEach((el, i) => {
       if (el.classList.contains("date")) {
@@ -1116,6 +1238,8 @@
       }
     });
     tl.to({}, { duration: 1.4 });
+    tl.addLabel("date", "-=0.7");
+    cardTimeline = tl;
   }
 
   /* ------------------------------------------------------------------ */
@@ -1243,6 +1367,7 @@
     safely("rsvp form", initRsvpForm);
     safely("reveals", initReveals);
     safely("navigation", initNavigation);
+    safely("auto scroll", () => AutoScroll.init());
     safely("music", () => Music.init());
     measure();
     startLoop();
