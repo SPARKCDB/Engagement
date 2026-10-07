@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20261007g" />
+  <link rel="stylesheet" href="css/style.css?v=20261007h" />
   <script>
     document.documentElement.className = "js";
     // Safety net: if the scripts cannot load, never keep the visitor behind the loader.
@@ -295,7 +295,7 @@
               <p class="kicker" data-step>With the blessings of our families</p>
               <h1 class="names" id="invite-title">
                 <span class="names__person" data-step="name">
-                  <span class="names__first" data-bind="groomFirst"></span>
+                  <span class="names__first"><span class="honorific" data-bind="groomTitle"></span><span data-bind="groomFirst"></span></span>
                   <span class="names__last" data-bind="groomLast"></span>
                 </span>
                 <span class="names__amp" data-step="amp" aria-label="and">&amp;</span>
@@ -336,7 +336,7 @@
         <div class="persona persona--groom">
           <p class="persona__label" data-fx="0.08,0.2,0.9,0.98" data-par="-40">The Groom</p>
           <h2 class="persona__name" data-fx="0.14,0.3,0.9,0.99" data-par="-70">
-            <span data-bind="groomFirst"></span>
+            <span><span class="honorific" data-bind="groomTitle"></span><span data-bind="groomFirst"></span></span>
             <span class="persona__last" data-bind="groomLast"></span>
           </h2>
           <svg class="persona__rule" aria-hidden="true" data-fx="0.2,0.34,0.9,0.98"><use href="#orn-divider" /></svg>
@@ -383,7 +383,7 @@
 
         <svg class="lotus" aria-hidden="true" data-reveal><use href="#orn-lotus" /></svg>
         <h2 class="details__names" id="details-title" data-reveal>
-          <span data-bind="groom"></span>
+          <span><span class="honorific" data-bind="groomTitle"></span><span data-bind="groom"></span></span>
           <span class="details__amp" aria-label="and">&amp;</span>
           <span data-bind="bride"></span>
         </h2>
@@ -563,7 +563,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
-  <script src="js/config.js?v=20261007g" defer></script>
-  <script src="js/main.js?v=20261007g" defer></script>
+  <script src="js/config.js?v=20261007h" defer></script>
+  <script src="js/main.js?v=20261007h" defer></script>
 </body>
 </html>

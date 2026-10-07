@@ -573,6 +573,12 @@ body.ui-light .continue-hint svg { color: var(--dark-gold); }
 }
 .date__venue span, [data-bind-lines] span { display: block; }
 
+/* Groom's title ("Ts.") keeps its own casing inside capitalised names */
+.honorific {
+  text-transform: none; font-size: .78em; letter-spacing: .01em; margin-right: .22em;
+}
+.persona__name .honorific { font-size: .62em; }
+
 /* ==========================================================================
    ENGAGEMENT DETAILS
    ========================================================================== */

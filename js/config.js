@@ -8,6 +8,9 @@
 window.invitationConfig = {
   /* ---- The couple ---------------------------------------------------- */
   groom: "Yogathipan Shanmugam",
+  // Shown exactly as written (not in capitals) before the groom's name on the
+  // invitation card, the groom intro and the engagement details. "" to hide.
+  groomTitle: "Ts.",
   bride: "Selvarani Chelvakumaran",
 
   /* ---- When ---------------------------------------------------------- */

@@ -124,6 +124,7 @@ All content comes from **`js/config.js`**, and every page section reads from it.
 
 | To change… | Edit in `js/config.js` |
 |---|---|
+| Groom's title | `groomTitle: "Ts."`, shown exactly as typed (not in capitals) before the groom's name on the invitation card, the groom intro and the engagement details. Leave empty to hide. |
 | Names | `groom`, `bride` (the first word is used as the first name, e.g. "Yogathipan") |
 | Date | `date: "24 October 2026"` (format **DD Month YYYY**). The weekday, the big "24", "OCTOBER", "2026", "24 • 10 • 2026" and the calendar invite are all derived from it. |
 | Time | `time: "7:00 PM"`. `utcOffset` is the venue's time zone (`"+08:00"` for Malaysia), and `durationHours` sets the calendar event length. |

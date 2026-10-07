@@ -79,6 +79,7 @@
 
     return {
       groom: c.groom, bride: c.bride,
+      groomTitle: c.groomTitle || "",
       groomFirst: g.first, groomLast: g.last,
       brideFirst: b.first, brideLast: b.last,
       initials: `${g.first.charAt(0)} & ${b.first.charAt(0)}`,
@@ -96,6 +97,7 @@
 
   function bindContent() {
     if (!DATA.rsvpBy) $$("[data-rsvp-by]").forEach((el) => el.remove());
+    if (!DATA.groomTitle) $$(".honorific").forEach((el) => el.remove());
     $$("[data-bind]").forEach((el) => {
       const v = DATA[el.dataset.bind];
       if (v !== undefined && v !== null && v !== "") el.textContent = v;
