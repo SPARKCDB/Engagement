@@ -181,6 +181,8 @@ Upload the whole folder as-is. No build is needed.
 - **Cloudflare Pages:** create a project, set no build command and output directory `/`.
 - **Any web hosting / cPanel:** upload everything into `public_html`.
 
+**After every update:** `index.html` loads `css/style.css?v=…`, `js/config.js?v=…` and `js/main.js?v=…`. Change the `v=` value (e.g. to today's date plus a letter) whenever you edit those files, so phones load the new version straight away instead of a cached copy.
+
 Before sharing the link:
 
 1. Check `whatsappContacts` and the `maps` links.

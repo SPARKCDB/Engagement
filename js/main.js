@@ -1037,6 +1037,9 @@
     glide(y, seconds, easing) {
       if (!lenis) return;
       this.active = true;
+      clearTimeout(this.safety);
+      // Never leave the page thinking a glide is still running.
+      this.safety = setTimeout(() => { this.active = false; }, seconds * 1000 + 800);
       lenis.scrollTo(y, {
         duration: seconds,
         easing,
@@ -1049,7 +1052,7 @@
     updateHint(y) {
       if (!this.hint) return;
       const begun = body.classList.contains("has-begun");
-      this.atGate = begun && this.gateY != null && !this.opened && !this.active && Math.abs(y - this.gateY) < 8;
+      this.atGate = begun && this.gateY != null && !this.opened && !this.active && Math.abs(y - this.gateY) < Math.max(12, vh * 0.04);
       if (this.tap) {
         this.tap.classList.toggle("is-shown", this.atGate);
         this.tap.tabIndex = this.atGate ? 0 : -1;
