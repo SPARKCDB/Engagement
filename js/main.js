@@ -86,6 +86,7 @@
       day: valid ? String(day) : "", month, year: valid ? String(year) : "", weekday,
       dateDots: valid ? `${pad(day)} • ${pad(mIdx + 1)} • ${year}` : c.date,
       venue: c.venue,
+      rsvpBy: c.rsvpBy || "",
       venueLines: (c.venueLines && c.venueLines.length) ? c.venueLines : String(c.venue || "").split(/,\s*/),
       start, end,
     };
@@ -94,6 +95,7 @@
   const DATA = deriveData(CFG);
 
   function bindContent() {
+    if (!DATA.rsvpBy) $$("[data-rsvp-by]").forEach((el) => el.remove());
     $$("[data-bind]").forEach((el) => {
       const v = DATA[el.dataset.bind];
       if (v !== undefined && v !== null && v !== "") el.textContent = v;

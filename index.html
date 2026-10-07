@@ -359,6 +359,7 @@
         </div>
         <div class="kolam-rule" aria-hidden="true" data-reveal></div>
         <address class="details__venue" data-reveal data-bind-lines="venueLines"></address>
+        <p class="rsvp-by rsvp-by--details" data-reveal data-rsvp-by>Kindly RSVP by <span data-bind="rsvpBy"></span></p>
         <div class="actions" data-reveal>
           <div class="cal">
             <button type="button" class="btn btn--maroon" data-choices="calendar" aria-haspopup="menu" aria-expanded="false">Add to Calendar</button>
@@ -433,6 +434,7 @@
         </div>
         <form class="rsvp-form" id="rsvp-form" novalidate data-reveal aria-describedby="rsvp-form-intro">
           <p class="rsvp-form__intro" id="rsvp-form-intro">Kindly let us know you are coming.</p>
+          <p class="rsvp-by" data-rsvp-by>Kindly RSVP by <span data-bind="rsvpBy"></span></p>
 
           <div class="field">
             <label class="field__label" for="rsvp-name">Your name</label>

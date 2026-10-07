@@ -36,6 +36,8 @@ window.invitationConfig = {
   // RSVP form → Google Sheet. Paste the Web App URL of the Apps Script in
   // google-apps-script/Code.gs here (see README, "RSVP form → Google Sheet").
   // While empty, the form opens WhatsApp with the guest's answers filled in.
+  // Reply-by date shown on the invitation.
+  rsvpBy: "18 October 2026",
   rsvpSheetUrl: "https://script.google.com/macros/s/AKfycbw-yTpZ512rGmgtbz8xYrbrMmQDs9_qMTXdVa8f7SUZRiYBQZK7WkimY9mVT5KxBHTs/exec",
   rsvpMessage:
     "Hi Yogathipan & Selvarani, I would like to confirm my attendance for your engagement on 24 October 2026.",

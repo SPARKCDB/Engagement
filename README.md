@@ -128,6 +128,7 @@ All content comes from **`js/config.js`**, and every page section reads from it.
 | Date | `date: "24 October 2026"` (format **DD Month YYYY**). The weekday, the big "24", "OCTOBER", "2026", "24 • 10 • 2026" and the calendar invite are all derived from it. |
 | Time | `time: "7:00 PM"`. `utcOffset` is the venue's time zone (`"+08:00"` for Malaysia), and `durationHours` sets the calendar event length. |
 | Venue | `venue` (one line, used for maps, calendar and RSVP) and `venueLines` (how it breaks onto lines on the invitation) |
+| RSVP deadline | `rsvpBy: "18 October 2026"`, shown on the details card and above the RSVP form. Leave it empty to hide both lines. |
 | RSVP form | `rsvpSheetUrl`: the Google Apps Script Web app URL. See **RSVP form → Google Sheet** below. |
 | Hosts | `rsvpContacts` (name + WhatsApp number for each host, international format, digits only) and `defaultRsvp`. See **Two invitation links** below. |
 | Maps | `maps.venue.google`, `maps.venue.waze`, `maps.parking.google`, `maps.parking.waze`. Each Directions button opens a small menu with Google Maps and Waze. Any empty link falls back to a Google Maps search of the venue address. |

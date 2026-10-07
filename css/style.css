@@ -623,6 +623,12 @@ body.has-begun .scroll-hint { opacity: 0; transition-delay: 0s; transition-durat
 .rsvp-form::before, .rsvp-thanks::before { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(198,161,91,.4); pointer-events: none; }
 .rsvp-form { display: flex; flex-direction: column; gap: 1.6rem; }
 .rsvp-form[hidden], .rsvp-thanks[hidden] { display: none; }
+.rsvp-by {
+  font-family: var(--f-title); font-size: .66rem; letter-spacing: .3em; padding-left: .3em; text-transform: uppercase;
+  text-align: center; color: var(--maroon); margin-top: -.9rem;
+}
+.rsvp-by span { white-space: nowrap; }
+.rsvp-by--details { margin-top: 2rem; color: var(--gold-ink); }
 .rsvp-form__intro { font-family: var(--f-display); font-style: italic; font-size: 1.2rem; text-align: center; color: rgba(33,28,24,.82); }
 
 .field { display: flex; flex-direction: column; gap: .45rem; min-width: 0; border: 0; margin: 0; padding: 0; }
