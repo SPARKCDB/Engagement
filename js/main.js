@@ -984,7 +984,7 @@
       // [position, pace] — pace slows the glide into that stop (1 = normal).
       this.stops = [
         [0, 1],
-        [at("scene-vinayagar", 0.2), 1],        // doors open, walk in, Vinayagar appears
+        [at("scene-vinayagar", 0.2), 1.35],     // doors open, walk in, Vinayagar appears (slower)
         [top("scene-card") + 2, 1, "gate"],     // Vinayagar presents the sealed envelope → "Tap to open"
         [cardAt("names") ?? top("invite"), 1],  // the card opens: names
         [cardAt("date"), 1],                    // date and time
@@ -1068,7 +1068,7 @@
       this.opened = true;
       const next = this.stops.find((st) => st.y > this.gateY + 3);
       if (!next) return;
-      const seconds = clamp(((next.y - window.scrollY) / vh) * this.SECONDS_PER_SCREEN * 1.25, 2, 12);
+      const seconds = clamp(((next.y - window.scrollY) / vh) * this.SECONDS_PER_SCREEN * 2, 3, 16);
       this.glide(next.y, seconds, (t) => -(Math.cos(Math.PI * t) - 1) / 2);
     },
     nudgeTap() {
